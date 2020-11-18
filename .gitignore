@@ -1,2 +1,5 @@
 venv/
 *.swp
+__pycache__
+*.pyc
+secrets.py
