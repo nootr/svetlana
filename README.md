@@ -36,11 +36,3 @@ pip install -r requirements.txt
 ```
 
 Run `./main.py` with `-d` for debug logs, check out `-h` for all arguments.
-
-## TODO
-
-[x] Create WebDiplomacy class as interface
-[x] Create Bot class
-[x] Implement commands
-[ ] Create setup.py
-[ ] Add CI/CD pipeline
