@@ -35,7 +35,4 @@ As always, work in a virtual environment and you'll be fine:
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-./main.py
 ```
-
-Run `./main.py` with `-d` for debug logs, check out `-h` for all arguments.
