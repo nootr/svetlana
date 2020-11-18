@@ -10,8 +10,6 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='A WebDiplomacy notification bot for Discord.')
 
-    parser.add_argument('-c', '--config', action='store',
-            help='Configuration file')
     parser.add_argument('-d', '--debug', action='store_true',
             help='Enable debug')
     return parser.parse_args()
