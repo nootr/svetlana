@@ -51,7 +51,8 @@ class DiscordClient(discord.Client):
                 data = self.wd_client.fetch(gameid)
                 if data['won']:
                     await channel.send(f"{data['won'][0]} has won!")
-                elif data['deadline'] < datetime.now() + timedelta(hours=2):
+                elif datetime.now() + timedelta(hours=1, minutes=45) <= \
+                        data['deadline'] <= datetime.now() + timedelta(hours=2):
                     if data['not_ready']:
                         await channel.send('@here Less than 2 hours left!')
                         await channel.send(f"Not ready: {data['not_ready']}")
