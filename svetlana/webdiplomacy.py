@@ -52,9 +52,10 @@ class WebDiplomacyClient(object):
         """
         patterns = {
             'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
+            'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
             'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
             'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
-            'won': r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
+            'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
             'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
         }
         data = { k: [] for k in patterns }

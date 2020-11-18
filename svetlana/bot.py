@@ -58,14 +58,19 @@ class DiscordClient(discord.Client):
                     await _say(f"{data['won'][0]} has won!")
                     await _say(f'I will stop following this game :)')
                     self._unfollow(gameid, channel)
+                elif data['drawn']:
+                    countries = ', '.join(data['drawn'])
+                    await _say(f'The game was a draw between {countries}!')
+                    await _say(f'I will stop following this game :)')
+                    self._unfollow(gameid, channel)
                 elif datetime.now() + timedelta(hours=1, minutes=60-period) <= \
                         data['deadline'] <= datetime.now() + timedelta(hours=2):
                     if data['not_ready']:
+                        countries = ', '.join(data['not_ready'])
                         await _say('@here Less than 2 hours left!')
-                        await _say(f"Not ready: {data['not_ready']}")
+                        await _say(f"These countries aren't ready: {countries}")
                     else:
-                        await _say(
-                            "Less than 2 hours left and everybody's ready!")
+                        await _say("Less than 2 hours left, everybody's ready!")
                 elif datetime.now() + timedelta(hours=23,minutes=60-period) <= \
                         data['deadline']:
                     await _say('Starting new round! Good luck :)')
