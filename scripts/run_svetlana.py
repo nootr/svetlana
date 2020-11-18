@@ -14,7 +14,7 @@ def parse_args():
             help='Enable debug')
     return parser.parse_args()
 
-def run(config, debug=False):
+def run(debug=False):
     loglevel = logging.DEBUG if debug else logging.INFO
     logformat = '%(asctime)s %(levelname)-8s %(message)s'
     logging.basicConfig(level=loglevel, format=logformat)

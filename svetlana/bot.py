@@ -47,27 +47,27 @@ class DiscordClient(discord.Client):
         return True
 
     async def _poll(self, period=1):
-        """Keep polling a list of games every given minutes."""
+        """Keep polling a list of games every X minutes."""
         while True:
             for gameid, channel in self._pollers:
+                async def _say(msg):
+                    await channel.send(f'[ {gameid} ] {msg}')
+
                 data = self.wd_client.fetch(gameid)
                 if data['won']:
-                    await channel.send(f"{data['won'][0]} has won!")
+                    await _say(f"{data['won'][0]} has won!")
                 elif datetime.now() + timedelta(hours=1, minutes=60-period) <= \
                         data['deadline'] <= datetime.now() + timedelta(hours=2):
                     if data['not_ready']:
-                        await channel.send('@here Less than 2 hours left!')
-                        await channel.send(f"Not ready: {data['not_ready']}")
+                        await _say('@here Less than 2 hours left!')
+                        await _say(f"Not ready: {data['not_ready']}")
                     else:
-                        await channel.send(
+                        await _say(
                             "Less than 2 hours left and everybody's ready!")
                 elif datetime.now() + timedelta(hours=23,minutes=60-period) <= \
                         data['deadline']:
-                    await channel.send('Starting new round! Good luck :)')
+                    await _say('Starting new round! Good luck :)')
             await asyncio.sleep(60*period)
-
-    async def on_ready(self):
-        logging.info(f'{self.user} has connected to Discord!')
 
     async def on_message(self, message):
         if message.content in ['lol', 'rofl', 'lmao', 'haha', 'hihi']:
