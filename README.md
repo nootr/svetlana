@@ -24,7 +24,7 @@ Svetlana understands the following commands:
 
 ## TODO
 
-[ ] Create WebDiplomacy class as interface
+[x] Create WebDiplomacy class as interface
 [ ] Create Bot class
 [ ] Create setup.py
 [ ] Add CI/CD pipeline
