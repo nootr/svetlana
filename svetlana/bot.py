@@ -11,6 +11,8 @@ DESCRIPTION = """I respond to the following commands (friends call me 'svet'):
     * Svetlana follow <ID> - I'll keep track of a game with this ID.
     * Svetlana unfollow <N> - I'll stop following this given game.
     * Svetlana list - I'll give you a list of the games I'm following.
+
+For more info, check out https://gitlab.jhartog.dev/jhartog/svetlana
 """
 
 
