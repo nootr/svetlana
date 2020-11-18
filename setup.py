@@ -14,7 +14,8 @@ setup(
     packages=find_packages(),
     python_requires='>=3',
     scripts=[
-        'main.py',
+        'scripts/svetlana',
+        'scripts/run_svetlana.py',
     ],
     install_requires=[
         'requests',

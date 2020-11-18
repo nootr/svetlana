@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ -f ~/.svetlanarc ]; then
+  source ~/.svetlanarc
+  export DISCORD_TOKEN
+fi
+
+run_svetlana.py "$@"

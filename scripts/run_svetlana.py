@@ -4,7 +4,7 @@ import logging
 import argparse
 
 from svetlana import bot
-from secrets import TOKEN
+from svetlana.config import fetch_config
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -21,7 +21,10 @@ def run(config, debug=False):
     logformat = '%(asctime)s %(levelname)-8s %(message)s'
     logging.basicConfig(level=loglevel, format=logformat)
 
-    bot.run(TOKEN)
+    config = fetch_config()
+    logging.debug('Loaded config: %s', config)
+
+    bot.run(config['DISCORD_TOKEN'])
 
 if __name__ == '__main__':
     args = parse_args()
