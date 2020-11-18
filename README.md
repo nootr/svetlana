@@ -1,7 +1,7 @@
 # Svetlana
 
-[![pipeline status](https://gitlab.hostnetbv.nl/jhartog/svetlana/badges/master/pipeline.svg)](https://gitlab.hostnetbv.nl/jhartog/svetlana/-/commits/master)
-[![coverage report](https://gitlab.hostnetbv.nl/jhartog/svetlana/badges/master/coverage.svg)](https://gitlab.hostnetbv.nl/jhartog/svetlana/-/commits/master)
+[![pipeline status](https://gitlab.jhartog.dev/jhartog/svetlana/badges/master/pipeline.svg)](https://gitlab.jhartog.dev/jhartog/svetlana/-/commits/master)
+[![coverage report](https://gitlab.jhartog.dev/jhartog/svetlana/badges/master/coverage.svg)](https://gitlab.jhartog.dev/jhartog/svetlana/-/commits/master)
 
 A quick-and-dirty Discord bot which notifies about deadlines in WebDiplomacy
 games.
