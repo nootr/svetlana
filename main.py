@@ -1,7 +1,7 @@
 import logging
 import argparse
 
-from svetlana.bot import bot
+from svetlana import bot
 from secrets import TOKEN
 
 def parse_args():

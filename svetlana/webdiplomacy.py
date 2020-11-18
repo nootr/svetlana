@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 
 
-class WebDiplomacy(object):
+class WebDiplomacyClient(object):
     """Acts as an interface to the WebDiplomacy website.
 
     Example usage:
