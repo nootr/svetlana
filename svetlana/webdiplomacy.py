@@ -6,24 +6,37 @@ import re
 from datetime import datetime
 
 
+class DiplomacyGame(object):
+    """Contains information about a WebDiplomacy game."""
+    def __init__(self, deadline, defeated, not_ready, ready, won, drawn,
+            pregame):
+        self.deadline = deadline
+        self.defeated = defeated
+        self.not_ready = not_ready
+        self.ready = ready
+        self.won = won[0]
+        self.drawn = drawn
+        self.pregame = pregame
+
+    def _timedelta(self):
+        """Returns the time until the deadline."""
+        return self.deadline - datetime.now()
+
+    def days_left(self):
+        """Returns the number of days left."""
+        return self._timedelta.days
+
+    def hours_left(self):
+        """Returns the number of hours left."""
+        return self._timedelta.seconds//3600
+
+    def minutes_left(self):
+        """Returns the number of minutes left."""
+        return (self._timedelta.seconds//60)%60
+
+
 class WebDiplomacyClient(object):
-    """Acts as an interface to the WebDiplomacy website.
-
-    Example usage:
-
-    >>> wd = WebDiplomacy()
-    >>> data = wd.fetch(327239)
-    >>> import pprint
-    >>> pprint.pprint(data)
-    {'deadline': datetime.datetime(2020, 11, 18, 16, 10, 40),
-     'defeated': ['Austria', 'England'],
-     'not_ready': ['France', 'Italy'],
-     'ready': ['Russia', 'Germany'],
-     'won': []}
-    >>> data = wd.fetch(333174)
-    >>> data['won']
-    'Austria'
-    """
+    """Acts as an interface to the WebDiplomacy website."""
     def __init__(self, url='https://webdiplomacy.net/'):
         self.url = url
 
@@ -78,7 +91,7 @@ class WebDiplomacyClient(object):
         try:
             response = self._request(self.url + endpoint.format(id))
             data = self._parse(response)
-
-            return data
+            game = DiplomacyGame(**data)
+            return game
         except Exception as e:
             logging.error('Problems while fetching data: %s', e)
