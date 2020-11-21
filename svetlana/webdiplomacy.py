@@ -57,6 +57,7 @@ class WebDiplomacyClient(object):
             'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
             'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
             'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
+            'pregame':   r'.*(memberPreGameList)">.*',
         }
         data = { k: [] for k in patterns }
 

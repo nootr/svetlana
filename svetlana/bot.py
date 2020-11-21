@@ -54,6 +54,7 @@ class DiscordClient(discord.Client):
                     await channel.send(f'[ {gameid} ] {msg}')
 
                 data = self.wd_client.fetch(gameid)
+                timedelta = data['deadline'] - datetime.now()
                 if data['won']:
                     await _say(f"{data['won'][0]} has won!")
                     await _say(f'I will stop following this game :)')
@@ -63,6 +64,9 @@ class DiscordClient(discord.Client):
                     await _say(f'The game was a draw between {countries}!')
                     await _say(f'I will stop following this game :)')
                     self._unfollow(gameid, channel)
+                elif data['pregame'] and timedelta.hours == 0 and \
+                        timedelta.minutes == 0:
+                    await _say(f"The game starts in {timedelta.days} days!")
                 elif datetime.now() + timedelta(hours=1, minutes=60-period) <= \
                         data['deadline'] <= datetime.now() + timedelta(hours=2):
                     if data['not_ready']:
