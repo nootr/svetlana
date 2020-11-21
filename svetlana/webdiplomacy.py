@@ -10,13 +10,14 @@ class DiplomacyGame(object):
     """Contains information about a WebDiplomacy game."""
     def __init__(self, deadline, defeated, not_ready, ready, won, drawn,
             pregame):
-        self.deadline = deadline
+        self.deadline = datetime.fromtimestamp(int(deadline[0])) if deadline \
+                else None
         self.defeated = defeated
         self.not_ready = not_ready
         self.ready = ready
-        self.won = won[0]
+        self.won = won[0] if won else None
         self.drawn = drawn
-        self.pregame = pregame
+        self.pregame = pregame != []
 
     def _timedelta(self):
         """Returns the time until the deadline."""
@@ -82,7 +83,6 @@ class WebDiplomacyClient(object):
                     data[key] = current_list + [match.group(1)]
 
         logging.debug('Parsed data: %s', data)
-        data['deadline'] = datetime.fromtimestamp(int(data['deadline'][0]))
 
         return data
 
