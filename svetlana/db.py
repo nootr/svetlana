@@ -15,24 +15,24 @@ class Pollers(object):
     def __iter__(self):
         pollers = self.connection.execute('SELECT game, channel FROM pollers;')
         for game, channel in pollers:
-            yield (game, channel)
+            yield (int(game), int(channel))
 
     def __contains__(self, item):
         game, channel = item
         cursor = self.connection.cursor()
         cursor.execute('SELECT id FROM pollers WHERE game = ? AND channel = ?',
-                (game, channel))
+                (int(game), int(channel)))
         data = cursor.fetchall()
         return len(data) > 0
 
     def append(self, item):
         game, channel = item
         self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
-                (game, channel))
+                (int(game, channel)))
         self.connection.commit()
 
     def remove(self, item):
         game, channel = item
         self.connection.execute("""DELETE FROM pollers
-                WHERE game=? AND channel=?""", (game, channel))
+                WHERE game=? AND channel=?""", (int(game), int(channel)))
         self.connection.commit()

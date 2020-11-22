@@ -25,7 +25,7 @@ class DiscordClient(discord.Client):
     def __init__(self, wd_client):
         self.wd_client = wd_client
         self._pollers = Pollers()
-        asyncio.Task(self._poll())
+        asyncio.Task(self._start_poll())
         super(DiscordClient, self).__init__()
 
     def _follow(self, id, channel):
@@ -48,38 +48,51 @@ class DiscordClient(discord.Client):
         logging.info('Following: %s', self._pollers)
         return True
 
-    async def _poll(self, period=1):
-        """Keep polling a list of games every X minutes."""
-        while True:
-            for gameid, channel_id in self._pollers:
-                channel = await self.fetch_channel(channel_id)
-                async def _say(msg):
-                    await channel.send(f'[ {gameid} ] {msg}')
+    async def _start_poll(self, period=1):
+        """Keep polling a list of games every X minutes.
 
-                game = self.wd_client.fetch(gameid)
-                if game.pregame:
-                    if game.hours_left == 0 and game.minutes_left == 0:
-                        await _say(
-                            f"The game starts in {timedelta.days_left} days!")
-                elif game.won:
-                    await _say(f"{game.won} has won!")
-                    await _say(f'I will stop following this game :)')
-                    self._unfollow(gameid, channel)
-                elif game.drawn:
-                    countries = ', '.join(game.drawn)
-                    await _say(f'The game was a draw between {countries}!')
-                    await _say(f'I will stop following this game :)')
-                    self._unfollow(gameid, channel)
-                elif game.hours_left == 2 and game.minutes_left < period:
-                    if game.not_ready:
-                        countries = ', '.join(game.not_ready)
-                        await _say('@here Two hours left!')
-                        await _say(f"These countries aren't ready: {countries}")
-                    else:
-                        await _say("Two hours left, everybody's ready!")
-                elif game.hours_left == 23 and game.minutes_left > 60 - period:
-                    await _say('Starting new round! Good luck :)')
+        Note that it first waits, then polls to prevent issues with fetching a
+        channel before the client is actually logged in.
+        """
+        while True:
             await asyncio.sleep(60*period)
+            try:
+                await self._poll(period)
+            except Exception as e:
+                logging.error('Error while polling: %s', e)
+
+    async def _poll(self, period=1):
+        """Poll a list of games."""
+        for gameid, channelid in self._pollers:
+            channel = self.get_channel(channelid)
+            assert channel
+
+            async def _say(msg):
+                await channel.send(f'[ {gameid} ] {msg}')
+
+            game = self.wd_client.fetch(gameid)
+            if game.pregame:
+                if game.hours_left == 0 and game.minutes_left == 0:
+                    await _say(
+                        f'The game starts in {timedelta.days_left} days!')
+            elif game.won:
+                await _say(f'{game.won} has won!')
+                await _say('I will stop following this game :)')
+                self._unfollow(gameid, channel)
+            elif game.drawn:
+                countries = ', '.join(game.drawn)
+                await _say(f'The game was a draw between {countries}!')
+                await _say('I will stop following this game :)')
+                self._unfollow(gameid, channel)
+            elif game.hours_left == 2 and game.minutes_left < period:
+                if game.not_ready:
+                    countries = ', '.join(game.not_ready)
+                    await _say('@here Two hours left!')
+                    await _say(f"These countries aren't ready: {countries}")
+                else:
+                    await _say("Two hours left, everybody's ready!")
+            elif game.hours_left == 23 and game.minutes_left > 60 - period:
+                await _say('Starting new round! Good luck :)')
 
     async def on_message(self, message):
         if message.content in {'lol', 'rofl', 'lmao', 'haha', 'hihi'}:
