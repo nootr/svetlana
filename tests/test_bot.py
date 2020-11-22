@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 
-from svetlana.bot import DiscordClient
+from svetlana.bot import DiscordClient, DESCRIPTION
 
 
 class MockChannel(object):
@@ -14,6 +14,17 @@ class MockMessage(object):
     channel = MockChannel()
     def __init__(self, msg):
         self.content = msg
+
+
+@pytest.mark.asyncio
+async def test_help(mocker, monkeypatch):
+    send_spy = mocker.spy(MockMessage.channel, 'send')
+
+    client = DiscordClient(None, ':memory:', False)
+
+    await client.on_message(MockMessage('svetlana help'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == DESCRIPTION
 
 @pytest.mark.asyncio
 async def test_follow_unfollow_list(mocker, monkeypatch):
