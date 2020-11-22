@@ -52,7 +52,7 @@ class DiscordClient(discord.Client):
         """Keep polling a list of games every X minutes."""
         while True:
             for gameid, channel_id in self._pollers:
-                channel = self.fetch_channel(channel_id)
+                channel = await self.fetch_channel(channel_id)
                 async def _say(msg):
                     await channel.send(f'[ {gameid} ] {msg}')
 
