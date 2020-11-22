@@ -27,17 +27,17 @@ class DiplomacyGame(object):
     @property
     def days_left(self):
         """Returns the number of days left."""
-        return self._timedelta.days
+        return self._timedelta.days if self.deadline else None
 
     @property
     def hours_left(self):
         """Returns the number of hours left."""
-        return self._timedelta.seconds//3600
+        return self._timedelta.seconds//3600 if self.deadline else None
 
     @property
     def minutes_left(self):
         """Returns the number of minutes left."""
-        return (self._timedelta.seconds//60)%60
+        return (self._timedelta.seconds//60)%60 if self.deadline else None
 
 
 class WebDiplomacyClient(object):
