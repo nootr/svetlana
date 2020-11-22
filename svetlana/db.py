@@ -28,7 +28,7 @@ class Pollers(object):
     def append(self, item):
         game, channel = item
         self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
-                (int(game, channel)))
+                (int(game), int(channel)))
         self.connection.commit()
 
     def remove(self, item):
