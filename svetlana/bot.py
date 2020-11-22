@@ -5,6 +5,8 @@ import asyncio
 from datetime import datetime, timedelta
 from time import sleep
 
+from svetlana.db import Pollers
+
 DESCRIPTION = """I respond to the following commands (friends call me 'svet'):
     * Svetlana hi - I simply respond to let you know I'm alive :)
     * Svetlana help - Well.. you already know this one, don't you?
@@ -22,13 +24,13 @@ For more info, check out https://gitlab.jhartog.dev/jhartog/svetlana
 class DiscordClient(discord.Client):
     def __init__(self, wd_client):
         self.wd_client = wd_client
-        self._pollers = []
+        self._pollers = Pollers()
         asyncio.Task(self._poll())
         super(DiscordClient, self).__init__()
 
     def _follow(self, id, channel):
         """Start following a given game by adding it to a list."""
-        obj = (id, channel)
+        obj = (id, channel.id)
         if obj in self._pollers:
             return False
 
@@ -38,7 +40,7 @@ class DiscordClient(discord.Client):
 
     def _unfollow(self, id, channel):
         """Stop following a given game by adding it to a list."""
-        obj = (id, channel)
+        obj = (id, channel.id)
         if obj not in self._pollers:
             return False
 
@@ -49,7 +51,8 @@ class DiscordClient(discord.Client):
     async def _poll(self, period=1):
         """Keep polling a list of games every X minutes."""
         while True:
-            for gameid, channel in self._pollers:
+            for gameid, channel_id in self._pollers:
+                channel = self.fetch_channel(channel_id)
                 async def _say(msg):
                     await channel.send(f'[ {gameid} ] {msg}')
 
@@ -87,7 +90,7 @@ class DiscordClient(discord.Client):
             try:
                 command = words[1]
                 arguments = words[2:]
-                logging.debug(command)
+                logging.debug('Received command: %s', command)
 
                 if command == 'hi':
                     await message.channel.send(f'Hello, {message.author.name}!')
@@ -115,8 +118,8 @@ class DiscordClient(discord.Client):
                         else:
                             await message.channel.send('Huh? What game?')
                 elif command == 'list':
-                    gameids = [id for id, channel in self._pollers \
-                            if channel == message.channel]
+                    gameids = [id for id, channel_id in self._pollers \
+                            if channel_id == message.channel.id]
                     await message.channel.send(f"I'm following: {gameids}")
             except Exception as e:
                 logging.error(e)
