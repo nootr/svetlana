@@ -22,10 +22,11 @@ For more info, check out https://gitlab.jhartog.dev/jhartog/svetlana
 
 
 class DiscordClient(discord.Client):
-    def __init__(self, wd_client):
+    def __init__(self, wd_client, db_file='pollers.db', polling=True):
         self.wd_client = wd_client
-        self._pollers = Pollers()
-        asyncio.Task(self._start_poll())
+        self._pollers = Pollers(db_file)
+        if polling:
+            asyncio.Task(self._start_poll())
         super(DiscordClient, self).__init__()
 
     def _follow(self, id, channel):
