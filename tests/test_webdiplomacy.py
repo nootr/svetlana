@@ -1,6 +1,7 @@
 import pytest
+from datetime import datetime
 
-from svetlana.webdiplomacy import WebDiplomacyClient
+from svetlana.webdiplomacy import DiplomacyGame, WebDiplomacyClient
 
 
 def test_client_won(mocker, monkeypatch):
@@ -87,3 +88,63 @@ def test_client_not_ready(mocker, monkeypatch):
     assert not game.pregame
     assert 'Italy' in game.not_ready
     assert 'France' in game.not_ready
+
+def test_game_time(mocker, monkeypatch):
+    mock_game = DiplomacyGame(
+            deadline=[str(int(datetime.now().timestamp()))],
+            defeated=[],
+            not_ready=[],
+            ready=[],
+            won=[],
+            drawn=[],
+            pregame=[]
+    )
+
+    assert mock_game.days_left == -1
+    assert mock_game.hours_left == 23
+    assert mock_game.minutes_left == 59
+
+    mock_game = DiplomacyGame(
+            deadline=[str(int(datetime.now().timestamp())+3600)],
+            defeated=[],
+            not_ready=[],
+            ready=[],
+            won=[],
+            drawn=[],
+            pregame=[]
+    )
+
+    assert mock_game.days_left == 0
+    assert mock_game.hours_left == 0
+    assert mock_game.minutes_left == 59
+
+def test_game_stats(mocker, monkeypatch):
+    mock_game = DiplomacyGame(
+            deadline=[str(int(datetime.now().timestamp()))],
+            defeated=['Italy'],
+            not_ready=['Turkey'],
+            ready=['Germany'],
+            won=['Russia'],
+            drawn=['Russia', 'France'],
+            pregame=[]
+    )
+
+    assert mock_game.defeated == ['Italy']
+    assert mock_game.not_ready == ['Turkey']
+    assert mock_game.ready == ['Germany']
+    assert mock_game.won == 'Russia'
+    assert mock_game.drawn == ['Russia', 'France']
+    assert not mock_game.pregame
+
+def test_game_pregame(mocker, monkeypatch):
+    mock_game = DiplomacyGame(
+            deadline=[str(int(datetime.now().timestamp()))],
+            defeated=[],
+            not_ready=[],
+            ready=[],
+            won=[],
+            drawn=[],
+            pregame=['foo']
+    )
+
+    assert mock_game.pregame

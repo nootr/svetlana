@@ -19,18 +19,22 @@ class DiplomacyGame(object):
         self.drawn = drawn
         self.pregame = pregame != []
 
+    @property
     def _timedelta(self):
         """Returns the time until the deadline."""
         return self.deadline - datetime.now()
 
+    @property
     def days_left(self):
         """Returns the number of days left."""
         return self._timedelta.days
 
+    @property
     def hours_left(self):
         """Returns the number of hours left."""
         return self._timedelta.seconds//3600
 
+    @property
     def minutes_left(self):
         """Returns the number of minutes left."""
         return (self._timedelta.seconds//60)%60
