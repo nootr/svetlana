@@ -21,3 +21,14 @@ def test_iter_append(mocker, monkeypatch):
 
     pollers.remove((1, 2))
     assert (1, 2) not in pollers
+
+def test_str(mocker, monkeypatch):
+    pollers = Pollers(':memory:')
+    assert str(pollers) == '[]'
+
+    data = [(1, 2), (3, 4)]
+
+    for x, y in data:
+        pollers.append((x, y))
+
+    assert str(pollers) == '[(1, 2), (3, 4)]'

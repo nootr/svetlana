@@ -25,6 +25,9 @@ class Pollers(object):
         data = cursor.fetchall()
         return len(data) > 0
 
+    def __str__(self):
+        return str(list(self))
+
     def append(self, item):
         game, channel = item
         self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
