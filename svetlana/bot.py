@@ -85,14 +85,14 @@ class DiscordClient(discord.Client):
             await _say(f'The game was a draw between {countries}!')
             await _say('I will stop following this game :)')
             self._unfollow(gameid, channel)
-        elif game.hours_left == 2 and game.minutes_left < period:
+        elif game.hours_left == 2 and game.minutes_left < period*1.5:
             if game.not_ready:
                 countries = ', '.join(game.not_ready)
                 await _say('@here Two hours left!')
                 await _say(f"These countries aren't ready: {countries}")
             else:
                 await _say("Two hours left, everybody's ready!")
-        elif game.hours_left == 23 and game.minutes_left > 60 - period:
+        elif game.hours_left == 23 and game.minutes_left > 60 - (period*1.5):
             await _say('Starting new round! Good luck :)')
 
     async def on_message(self, message):
