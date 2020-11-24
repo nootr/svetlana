@@ -11,20 +11,26 @@ HOUR = 60*MINUTE
 DAY = 24*HOUR
 
 
-class MockChannel(object):
+class MockChannel:
     id = 1
+
     @asyncio.coroutine
     def send(self, msg):
         return None
 
-class MockMessage(object):
+class MockAuthor:
+    name = 'jhartog'
+
+class MockMessage:
     channel = MockChannel()
+    author = MockAuthor()
+
     def __init__(self, msg):
         self.content = msg
 
-class MockWebDiplomacyClient(object):
-    def __init__(self, kwargs):
-        self._response = DiplomacyGame(**kwargs)
+class MockWebDiplomacyClient:
+    def __init__(self, data):
+        self._response = DiplomacyGame(data)
 
     def fetch(self, _):
         return self._response
@@ -38,7 +44,7 @@ async def test_help(mocker, monkeypatch):
 
     await client.on_message(MockMessage('svetlana help'))
     args, kwargs = send_spy.call_args
-    assert args[0] == DESCRIPTION
+    assert args[0] == f'Hello, jhartog!\n{DESCRIPTION}'
 
 @pytest.mark.asyncio
 async def test_follow_unfollow_list(mocker, monkeypatch):
@@ -89,7 +95,7 @@ async def test_poll_pregame(mocker, monkeypatch):
 
         client = DiscordClient(wd_client, ':memory:', False)
 
-        msg = client._poll(None)
+        msg = client._poll(None, None)
         assert msg == f'The game starts in {N} days!'
 
     for N in range(7):
@@ -109,7 +115,7 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
 
     client = DiscordClient(wd_client, ':memory:', False)
 
-    msg = client._poll(None)
+    msg = client._poll(None, None)
     assert msg == "Two hours left, everybody's ready!"
 
 @pytest.mark.asyncio
@@ -126,7 +132,7 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
 
     client = DiscordClient(wd_client, ':memory:', False)
 
-    msg = client._poll(None)
+    msg = client._poll(None, None)
     assert msg == "Two hours left! These countries aren't ready: Turkey, France"
 
 @pytest.mark.asyncio
@@ -143,7 +149,7 @@ async def test_poll_drawn(mocker, monkeypatch):
 
     client = DiscordClient(wd_client, ':memory:', False)
 
-    msg = client._poll(None)
+    msg = client._poll(None, None)
     assert msg == 'The game was a draw between France, Russia!'
 
 @pytest.mark.asyncio
@@ -160,7 +166,7 @@ async def test_poll_won(mocker, monkeypatch):
 
     client = DiscordClient(wd_client, ':memory:', False)
 
-    msg = client._poll(None)
+    msg = client._poll(None, None)
     assert msg == 'Russia has won!'
 
 @pytest.mark.asyncio
@@ -177,6 +183,6 @@ async def test_poll_new_round(mocker, monkeypatch):
 
     client = DiscordClient(wd_client, ':memory:', False)
 
-    msg = client._poll(None)
+    msg = client._poll(None, None)
     assert msg == 'Starting new round! Good luck :)'
 

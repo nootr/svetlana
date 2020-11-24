@@ -1,9 +1,6 @@
 import logging
-import discord
 import asyncio
-
-from datetime import datetime
-from time import sleep
+import discord
 
 from svetlana.db import Pollers
 
@@ -22,19 +19,20 @@ For more info, check out https://gitlab.jhartog.dev/jhartog/svetlana
 
 
 class DiscordClient(discord.Client):
+    """A Discord client which is used to poll WebDiplomacy games."""
     def __init__(self, wd_client, db_file='pollers.db', polling=True):
         self.wd_client = wd_client
         self._pollers = Pollers(db_file)
         if polling:
             asyncio.Task(self._start_poll())
-        super(DiscordClient, self).__init__()
+        super().__init__()
 
-    def _follow(self, id, channel):
+    def _follow(self, game_id, channel):
         """Start following a given game by adding it to a list."""
         if not channel:
             return False
 
-        obj = (id, channel.id)
+        obj = (game_id, channel.id)
         if obj in self._pollers:
             return False
 
@@ -42,12 +40,12 @@ class DiscordClient(discord.Client):
         logging.info('Following: %s', self._pollers)
         return True
 
-    def _unfollow(self, id, channel):
+    def _unfollow(self, game_id, channel):
         """Stop following a given game by adding it to a list."""
         if not channel:
             return False
 
-        obj = (id, channel.id)
+        obj = (game_id, channel.id)
         if obj not in self._pollers:
             return False
 
@@ -61,88 +59,89 @@ class DiscordClient(discord.Client):
         Note that it first waits, then polls to prevent issues with fetching a
         channel before the client is actually logged in.
         """
-        async def _say(msg):
-            await channel.send(f'[ {gameid} ] {msg}')
-
         while True:
             await asyncio.sleep(60*period)
-            for gameid, channelid in self._pollers:
+            for game_id, channel_id in self._pollers:
                 try:
-                    result = self._poll(gameid, channelid, period)
+                    result = self._poll(game_id, channel_id, period)
                     if result:
-                        await _say(result)
-                except Exception as e:
-                    logging.error('Error while polling %d: %s', gameid, e)
+                        channel = self.get_channel(channel_id)
+                        await channel.send(f'[ {game_id} ] {result}')
+                except Exception as exc:
+                    logging.error('Error while polling %d: %s', game_id, exc)
 
-    def _poll(self, gameid, channelid=None, period=1):
+    def _poll(self, game_id, channel_id, period=1):
         """Poll a game. Returns a message, if needed."""
-        channel = self.get_channel(channelid)
-        if channelid:
-            assert channel
-
-        game = self.wd_client.fetch(gameid)
+        game = self.wd_client.fetch(game_id)
+        msg = None
         if game.pregame:
             if game.hours_left == 0 and game.minutes_left == 0:
-                return f'The game starts in {game.days_left} days!'
+                msg = f'The game starts in {game.days_left} days!'
         elif game.won:
-            self._unfollow(gameid, channel)
-            return f'{game.won} has won!'
+            self._unfollow(game_id, channel_id)
+            msg = f'{game.won} has won!'
         elif game.drawn:
             countries = ', '.join(game.drawn)
-            self._unfollow(gameid, channel)
-            return f'The game was a draw between {countries}!'
+            self._unfollow(game_id, channel_id)
+            msg = f'The game was a draw between {countries}!'
         elif game.hours_left == 2 and game.minutes_left < period*1.5:
             if game.not_ready:
                 countries = ', '.join(game.not_ready)
-                return "Two hours left! These countries aren't ready: " + \
+                msg = "Two hours left! These countries aren't ready: " + \
                         countries
             else:
-                return "Two hours left, everybody's ready!"
+                msg = "Two hours left, everybody's ready!"
         elif game.hours_left == 23 and game.minutes_left > 60 - (period*1.5):
-            return 'Starting new round! Good luck :)'
+            msg = 'Starting new round! Good luck :)'
 
-        return None
+        return msg
+
+    def _answer_message(self, message):
+        """React to a message."""
+        words = message.content.split(' ')
+        command = words[1]
+        arguments = words[2:]
+        msg = None
+        logging.debug('Received command: %s', command)
+
+        if command in {'hi', 'hello', 'help'}:
+            msg = f'Hello, {message.author.name}!\n{DESCRIPTION}'
+        elif command == 'follow':
+            if len(arguments) != 1:
+                msg = 'Could you please give me a valid ID?'
+            else:
+                game_id = int(arguments[0])
+                if self._follow(game_id, message.channel):
+                    msg = 'Will do!'
+                else:
+                    msg = "I'm already following that game!"
+        elif command == 'unfollow':
+            if len(arguments) != 1:
+                msg = 'Could you please give me a valid ID?'
+            else:
+                game_id = int(arguments[0])
+                if self._unfollow(game_id, message.channel):
+                    msg = 'Consider it done!'
+                else:
+                    msg = 'Huh? What game?'
+        elif command == 'list':
+            game_ids = [id for id, channel_id in self._pollers \
+                    if channel_id == message.channel.id]
+            msg = f"I'm following: {game_ids}"
+
+        return msg
 
     async def on_message(self, message):
+        """Recieve, parse and possibly react to a message."""
         if message.content in {'lol', 'rofl', 'lmao', 'haha', 'hihi'}:
             await message.channel.send('lol xD')
 
         words = message.content.split(' ')
         if words[0].lower() in {'svetlana', 'svet'}:
             try:
-                command = words[1]
-                arguments = words[2:]
-                logging.debug('Received command: %s', command)
-
-                if command == 'hi':
-                    await message.channel.send(f'Hello, {message.author.name}!')
-                elif command == 'help':
-                    await message.channel.send(DESCRIPTION)
-                elif command == 'follow':
-                    if len(arguments) != 1:
-                        msg = 'Could you please give me a valid ID?'
-                        await message.channel.send(msg)
-                    else:
-                        gameid = int(arguments[0])
-                        if self._follow(gameid, message.channel):
-                            await message.channel.send('Will do!')
-                        else:
-                            await message.channel.send(
-                                "I'm already following that game!")
-                elif command == 'unfollow':
-                    if len(arguments) != 1:
-                        msg = 'Could you please give me a valid ID?'
-                        await message.channel.send(msg)
-                    else:
-                        gameid = int(arguments[0])
-                        if self._unfollow(gameid, message.channel):
-                            await message.channel.send('Consider it done!')
-                        else:
-                            await message.channel.send('Huh? What game?')
-                elif command == 'list':
-                    gameids = [id for id, channel_id in self._pollers \
-                            if channel_id == message.channel.id]
-                    await message.channel.send(f"I'm following: {gameids}")
-            except Exception as e:
-                logging.error(e)
+                answer = self._answer_message(message)
+                if answer:
+                    await message.channel.send(answer)
+            except Exception as exc:
+                logging.warning(exc)
                 await message.channel.send('Huh?')
