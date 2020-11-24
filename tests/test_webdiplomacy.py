@@ -90,44 +90,44 @@ def test_client_not_ready(mocker, monkeypatch):
     assert 'France' in game.not_ready
 
 def test_game_time(mocker, monkeypatch):
-    mock_game = DiplomacyGame(
-            deadline=[str(int(datetime.now().timestamp()))],
-            defeated=[],
-            not_ready=[],
-            ready=[],
-            won=[],
-            drawn=[],
-            pregame=[]
-    )
+    mock_game = DiplomacyGame({
+        'deadline': [str(int(datetime.now().timestamp()))],
+        'defeated': [],
+        'not_ready': [],
+        'ready': [],
+        'won': [],
+        'drawn': [],
+        'pregame': [],
+    })
 
     assert mock_game.days_left == -1
     assert mock_game.hours_left == 23
     assert mock_game.minutes_left == 59
 
-    mock_game = DiplomacyGame(
-            deadline=[str(int(datetime.now().timestamp())+3600)],
-            defeated=[],
-            not_ready=[],
-            ready=[],
-            won=[],
-            drawn=[],
-            pregame=[]
-    )
+    mock_game = DiplomacyGame({
+        'deadline': [str(int(datetime.now().timestamp())+3600)],
+        'defeated': [],
+        'not_ready': [],
+        'ready': [],
+        'won': [],
+        'drawn': [],
+        'pregame': [],
+    })
 
     assert mock_game.days_left == 0
     assert mock_game.hours_left == 0
     assert mock_game.minutes_left == 59
 
 def test_game_stats(mocker, monkeypatch):
-    mock_game = DiplomacyGame(
-            deadline=[str(int(datetime.now().timestamp()))],
-            defeated=['Italy'],
-            not_ready=['Turkey'],
-            ready=['Germany'],
-            won=['Russia'],
-            drawn=['Russia', 'France'],
-            pregame=[]
-    )
+    mock_game = DiplomacyGame({
+        'deadline': [str(int(datetime.now().timestamp()))],
+        'defeated': ['Italy'],
+        'not_ready': ['Turkey'],
+        'ready': ['Germany'],
+        'won': ['Russia'],
+        'drawn': ['Russia', 'France'],
+        'pregame': [],
+    })
 
     assert mock_game.defeated == ['Italy']
     assert mock_game.not_ready == ['Turkey']
@@ -137,14 +137,14 @@ def test_game_stats(mocker, monkeypatch):
     assert not mock_game.pregame
 
 def test_game_pregame(mocker, monkeypatch):
-    mock_game = DiplomacyGame(
-            deadline=[str(int(datetime.now().timestamp()))],
-            defeated=[],
-            not_ready=[],
-            ready=[],
-            won=[],
-            drawn=[],
-            pregame=['foo']
-    )
+    mock_game = DiplomacyGame({
+        'deadline': [str(int(datetime.now().timestamp()))],
+        'defeated': [],
+        'not_ready': [],
+        'ready': [],
+        'won': [],
+        'drawn': [],
+        'pregame': ['foo'],
+    })
 
     assert mock_game.pregame

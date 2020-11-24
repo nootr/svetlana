@@ -1,7 +1,6 @@
 import sqlite3
-import discord
 
-class Pollers(object):
+class Pollers:
     """A simple list of Game ID-Discord channel pairs."""
     def __init__(self, dbfile='pollers.db'):
         self.connection = sqlite3.connect(dbfile)
@@ -29,12 +28,14 @@ class Pollers(object):
         return str(list(self))
 
     def append(self, item):
+        """Append a game-channel pair to the list."""
         game, channel = item
         self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
                 (int(game), int(channel)))
         self.connection.commit()
 
     def remove(self, item):
+        """Remove a game-channel pair from the list."""
         game, channel = item
         self.connection.execute("""DELETE FROM pollers
                 WHERE game=? AND channel=?""", (int(game), int(channel)))

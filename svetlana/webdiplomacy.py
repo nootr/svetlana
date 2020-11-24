@@ -1,23 +1,52 @@
-import requests
 import logging
 import time
 import re
 
 from datetime import datetime
 
+import requests
 
-class DiplomacyGame(object):
+def _parse_page(content):
+    """Parses the contents of a WebDiplomacy game page.
+
+    Returns a dict with country and game info.
+
+    Note that exceptions are not caught by design, these should be handled
+    outside of this function.
+    """
+    patterns = {
+        'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
+        'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
+        'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
+        'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
+        'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
+        'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
+        'pregame':   r'.*(memberPreGameList)">.*',
+    }
+    data = { k: [] for k in patterns }
+
+    for line in content.split('\n'):
+        for key, pattern in patterns.items():
+            match = re.match(pattern, line.strip())
+            if match:
+                current_list = data.get(key, [])
+                data[key] = current_list + [match.group(1)]
+
+    logging.debug('Parsed data: %s', data)
+
+    return data
+
+class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
-    def __init__(self, deadline, defeated, not_ready, ready, won, drawn,
-            pregame):
-        self.deadline = datetime.fromtimestamp(int(deadline[0])) if deadline \
-                else None
-        self.defeated = defeated
-        self.not_ready = not_ready
-        self.ready = ready
-        self.won = won[0] if won else None
-        self.drawn = drawn
-        self.pregame = pregame != []
+    def __init__(self, stats):
+        self.deadline = datetime.fromtimestamp(int(stats['deadline'][0])) \
+                if stats['deadline'] else None
+        self.defeated = stats['defeated']
+        self.not_ready = stats['not_ready']
+        self.ready = stats['ready']
+        self.won = stats['won'][0] if stats['won'] else None
+        self.drawn = stats['drawn']
+        self.pregame = stats['pregame'] != []
 
     @property
     def _timedelta(self):
@@ -40,7 +69,7 @@ class DiplomacyGame(object):
         return (self._timedelta.seconds//60)%60 if self.deadline else None
 
 
-class WebDiplomacyClient(object):
+class WebDiplomacyClient:
     """Acts as an interface to the WebDiplomacy website."""
     def __init__(self, url='https://webdiplomacy.net/'):
         self.url = url
@@ -55,47 +84,18 @@ class WebDiplomacyClient(object):
             response = requests.get(url)
             response.raise_for_status()
             return response.text
-        except Exception as e:
-            logging.error('Request failed: "%s" "%s"', url, e)
+        except Exception as exc:
+            if timeout > threshold:
+                logging.error('Problem while fetching data: %s', exc)
             time.sleep(timeout)
             self._request(url, timeout=timeout*2)
 
-    def _parse(self, content):
-        """Parses the contents of a WebDiplomacy game page.
-
-        Returns a dict with country and game info.
-
-        Note that exceptions are not caught by design, these should be handled
-        outside of this function.
-        """
-        patterns = {
-            'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
-            'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
-            'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
-            'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
-            'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
-            'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
-            'pregame':   r'.*(memberPreGameList)">.*',
-        }
-        data = { k: [] for k in patterns }
-
-        for line in content.split('\n'):
-            for key, pattern in patterns.items():
-                match = re.match(pattern, line.strip())
-                if match:
-                    current_list = data.get(key, [])
-                    data[key] = current_list + [match.group(1)]
-
-        logging.debug('Parsed data: %s', data)
-
-        return data
-
-    def fetch(self, id, endpoint='board.php?gameID={}'):
+    def fetch(self, game_id, endpoint='board.php?gameID={}'):
         """Fetches info from WebDiplomacy, parses it and returns the data."""
         try:
-            response = self._request(self.url + endpoint.format(id))
-            data = self._parse(response)
-            game = DiplomacyGame(**data)
+            response = self._request(self.url + endpoint.format(game_id))
+            data = _parse_page(response)
+            game = DiplomacyGame(data)
             return game
-        except Exception as e:
-            logging.error('Problems while fetching data: %s', e)
+        except Exception as exc:
+            logging.error('Problems while fetching data: %s', exc)
