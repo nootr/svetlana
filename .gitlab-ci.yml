@@ -2,15 +2,22 @@
 image: centos:8
 
 stages:
+  - analysis
   - test
+
+before_script:
+  - yum -q -y install python3-pip python3-devel
+  - python3 -m pip -q install --upgrade pip
+  - python3 -m pip -q install -r test-requirements.txt
+
+lint:
+  stage: analysis
+  script:
+    - pylint --disable=C0114 svetlana/*.py
 
 test:
   stage: test
-  before_script:
-    - yum -q -y install python3-pip python3-devel
-    - python3 -m pip -q install --upgrade pip
-    - python3 -m pip -q install -r requirements.txt
-    - python3 -m pip -q install -r test-requirements.txt
   script:
+    - python3 -m pip -q install -r requirements.txt
     - pytest --cov=svetlana -v
   coverage: '/TOTAL.*\s+(\d+%)$/'
