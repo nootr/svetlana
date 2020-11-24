@@ -2,7 +2,7 @@ import logging
 import discord
 import asyncio
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import sleep
 
 from svetlana.db import Pollers
@@ -75,7 +75,7 @@ class DiscordClient(discord.Client):
         if game.pregame:
             if game.hours_left == 0 and game.minutes_left == 0:
                 await _say(
-                    f'The game starts in {timedelta.days_left} days!')
+                    f'The game starts in {game.days_left} days!')
         elif game.won:
             await _say(f'{game.won} has won!')
             await _say('I will stop following this game :)')
