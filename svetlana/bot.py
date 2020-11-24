@@ -101,7 +101,7 @@ class DiscordClient(discord.Client):
 
     @staticmethod
     def _get_embed(game_id, msg=''):
-        # TODO (krist):  Don't use fixed turn number for map image
+        # NOTE (krist):  Don't use fixed turn number for map image
         embed_url = f'https://webdiplomacy.net/board.php?gameID={game_id}'
         embed_img = f'https://webdiplomacy.net/map.php?gameID={game_id}&turn=1337'
 
