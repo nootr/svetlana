@@ -15,7 +15,7 @@ class MockChannel:
     id = 1
 
     @asyncio.coroutine
-    def send(self, msg):
+    def send(self, *args, **kwargs):
         return None
 
 class MockAuthor:
@@ -58,11 +58,11 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
-    assert args[0] == 'Will do!'
+    assert kwargs['embed'].description == 'Now following 1234!'
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
-    assert args[0] == "I'm already following that game!"
+    assert kwargs['embed'].description == "I'm already following that game!"
 
     await client.on_message(MockMessage('svetlana list'))
     args, kwargs = send_spy.call_args
