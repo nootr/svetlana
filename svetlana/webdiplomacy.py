@@ -6,35 +6,6 @@ from datetime import datetime
 
 import requests
 
-def _parse_page(content):
-    """Parses the contents of a WebDiplomacy game page.
-
-    Returns a dict with country and game info.
-
-    Note that exceptions are not caught by design, these should be handled
-    outside of this function.
-    """
-    patterns = {
-        'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
-        'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
-        'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
-        'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
-        'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
-        'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
-        'pregame':   r'.*(memberPreGameList)">.*',
-    }
-    data = { k: [] for k in patterns }
-
-    for line in content.split('\n'):
-        for key, pattern in patterns.items():
-            match = re.match(pattern, line.strip())
-            if match:
-                current_list = data.get(key, [])
-                data[key] = current_list + [match.group(1)]
-
-    logging.debug('Parsed data: %s', data)
-
-    return data
 
 class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
@@ -90,11 +61,42 @@ class WebDiplomacyClient:
             time.sleep(timeout)
             self._request(url, timeout=timeout*2)
 
+    @staticmethod
+    def _parse(content):
+        """Parses the contents of a WebDiplomacy game page.
+
+        Returns a dict with country and game info.
+
+        Note that exceptions are not caught by design, these should be handled
+        outside of this function.
+        """
+        patterns = {
+            'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
+            'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
+            'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
+            'not_ready': r'.*memberCountryName.*alert.*StatusPlaying">(.*?)<.*',
+            'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
+            'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
+            'pregame':   r'.*(memberPreGameList)">.*',
+        }
+        data = { k: [] for k in patterns }
+
+        for line in content.split('\n'):
+            for key, pattern in patterns.items():
+                match = re.match(pattern, line.strip())
+                if match:
+                    current_list = data.get(key, [])
+                    data[key] = current_list + [match.group(1)]
+
+        logging.debug('Parsed data: %s', data)
+
+        return data
+
     def fetch(self, game_id, endpoint='board.php?gameID={}'):
         """Fetches info from WebDiplomacy, parses it and returns the data."""
         try:
             response = self._request(self.url + endpoint.format(game_id))
-            data = _parse_page(response)
+            data = self._parse(response)
             game = DiplomacyGame(data)
             return game
         except Exception as exc:
