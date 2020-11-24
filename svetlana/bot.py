@@ -27,12 +27,12 @@ class DiscordClient(discord.Client):
             asyncio.Task(self._start_poll())
         super().__init__()
 
-    def _follow(self, game_id, channel):
+    def _follow(self, game_id, channel_id):
         """Start following a given game by adding it to a list."""
-        if not channel:
+        if not channel_id:
             return False
 
-        obj = (game_id, channel.id)
+        obj = (game_id, channel_id)
         if obj in self._pollers:
             return False
 
@@ -40,12 +40,12 @@ class DiscordClient(discord.Client):
         logging.info('Following: %s', self._pollers)
         return True
 
-    def _unfollow(self, game_id, channel):
+    def _unfollow(self, game_id, channel_id):
         """Stop following a given game by adding it to a list."""
-        if not channel:
+        if not channel_id:
             return False
 
-        obj = (game_id, channel.id)
+        obj = (game_id, channel_id)
         if obj not in self._pollers:
             return False
 
@@ -66,9 +66,12 @@ class DiscordClient(discord.Client):
                     result = self._poll(game_id, channel_id, period)
                     if result:
                         channel = self.get_channel(channel_id)
-                        await channel.send(f'[ {game_id} ] {result}')
+                        embed = self._get_embed(game_id, result)
+
+                        await channel.send(embed=embed)
                 except Exception as exc:
-                    logging.error('Error while polling %d: %s', game_id, exc)
+                    # logging.error('Error while polling %d: %s', game_id, exc)
+                    logging.exception('Error while polling %d: %s', game_id, exc)
 
     def _poll(self, game_id, channel_id, period=1):
         """Poll a game. Returns a message, if needed."""
@@ -96,6 +99,21 @@ class DiscordClient(discord.Client):
 
         return msg
 
+    @staticmethod
+    def _get_embed(game_id, msg=''):
+        # TODO (krist):  Don't use fixed turn number for map image
+        embed_url = f'https://webdiplomacy.net/board.php?gameID={game_id}'
+        embed_img = f'https://webdiplomacy.net/map.php?gameID={game_id}&turn=1337'
+
+        embed = discord.Embed(
+                title=f'Diplomacy game {game_id}',
+                description=msg,
+                url=embed_url,
+            )
+        embed.set_image(url=embed_img)
+
+        return embed
+
     def _answer_message(self, message):
         """React to a message."""
         words = message.content.split(' ')
@@ -111,16 +129,17 @@ class DiscordClient(discord.Client):
                 msg = 'Could you please give me a valid ID?'
             else:
                 game_id = int(arguments[0])
-                if self._follow(game_id, message.channel):
-                    msg = 'Will do!'
+                if self._follow(game_id, message.channel.id):
+                    desc = f'Now following {game_id}!'
                 else:
-                    msg = "I'm already following that game!"
+                    desc = "I'm already following that game!"
+                msg = self._get_embed(game_id, desc)
         elif command == 'unfollow':
             if len(arguments) != 1:
                 msg = 'Could you please give me a valid ID?'
             else:
                 game_id = int(arguments[0])
-                if self._unfollow(game_id, message.channel):
+                if self._unfollow(game_id, message.channel.id):
                     msg = 'Consider it done!'
                 else:
                     msg = 'Huh? What game?'
@@ -141,7 +160,10 @@ class DiscordClient(discord.Client):
             try:
                 answer = self._answer_message(message)
                 if answer:
-                    await message.channel.send(answer)
+                    if isinstance(answer, discord.Embed):
+                        await message.channel.send(embed=answer)
+                    else:
+                        await message.channel.send(answer)
             except Exception as exc:
                 logging.warning(exc)
                 await message.channel.send('Huh?')
