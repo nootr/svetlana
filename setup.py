@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='svetlana',
-    version='1.2.0',
+    version='1.3.0',
     description='A WebDiplomacy notification bot for Discord.',
     long_description=long_description,
     author='Joris Hartog',
