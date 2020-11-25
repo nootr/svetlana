@@ -119,5 +119,7 @@ class WebDiplomacyClient:
             game = DiplomacyGame(game_id, data, self.url,
                     endpoint.format(game_id))
             return game
-        except Exception as exc:
-            logging.exception('Problems while fetching data: %s', exc)
+        except (IndexError, KeyError):
+            # NOTE(jhartog): This is a parsing error, which most probably means
+            # the game is invalid.
+            return None
