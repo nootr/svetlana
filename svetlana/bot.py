@@ -3,12 +3,14 @@ import logging
 import asyncio
 import discord
 
-from svetlana.db import Pollers
+from svetlana.db import Pollers, Alarms
 
 DESCRIPTION = """I respond to the following commands (friends call me 'svet'):
     * Svetlana hi/help - I'll show you this list!
     * Svetlana follow <ID> - I'll keep track of a game with this ID.
     * Svetlana unfollow <N> - I'll stop following this given game.
+    * Svetlana alert <N> - I'll alert N hours before a deadline.
+    * Svetlana silence <N> - I won't alert N hours before a deadline.
     * Svetlana list - I'll give you a list of the games I'm following.
 
 I will give a notification when a new round starts and two hours before it
@@ -20,9 +22,10 @@ For more info, check out https://gitlab.jhartog.dev/jhartog/svetlana
 
 class DiscordClient(discord.Client):
     """A Discord client which is used to poll WebDiplomacy games."""
-    def __init__(self, wd_client, db_file='pollers.db', polling=True):
+    def __init__(self, wd_client, db_file='svetlana.db', polling=True):
         self.wd_client = wd_client
         self._pollers = Pollers(db_file)
+        self._alarms = Alarms(db_file)
         if polling:
             asyncio.Task(self._start_poll())
         super().__init__()
@@ -51,6 +54,24 @@ class DiscordClient(discord.Client):
 
         self._pollers.remove(obj)
         logging.info('Following: %s', self._pollers)
+        return True
+
+    def _add_alert(self, hours):
+        """Add an alert for X hours before a deadline."""
+        if hours in self._alarms:
+            return False
+
+        self._alarms.append(hours)
+        logging.info('Alerting at: %s', self._alarms)
+        return True
+
+    def _remove_alert(self, hours):
+        """Stop alerting X hours before a deadline."""
+        if hours not in self._alarms:
+            return False
+
+        self._alarms.remove(hours)
+        logging.info('Alerting at: %s', self._alarms)
         return True
 
     async def _start_poll(self, period=1):
@@ -137,6 +158,18 @@ class DiscordClient(discord.Client):
                 msg = 'Consider it done!'
             else:
                 msg = 'Huh? What game?'
+        elif command == 'alert':
+            hours = int(arguments[0])
+            if self._add_alert(hours):
+                msg = f'OK, I will alert {hours} hours before a deadline.'
+            else:
+                msg = f"I'm already alerting {hours} hours before a deadline!"
+        elif command == 'silence':
+            hours = int(arguments[0])
+            if self._remove_alert(hours):
+                msg = f'Understood, I will stop alerting T-{hours}h..'
+            else:
+                msg = f"I already don't alert {hours} hours before a deadline?!"
         elif command == 'list':
             game_ids = [id for id, channel_id in self._pollers \
                     if channel_id == message.channel.id]

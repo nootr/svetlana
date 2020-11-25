@@ -19,12 +19,14 @@ pip install .
 
 Svetlana understands the following commands:
 
-| Command                    | Description                                    |
-|----------------------------|------------------------------------------------|
-| Svetlana hi/help           | Shows this list of commands.                   |
-| Svetlana follow [GAMEID]   | Start following a certain WebDiplomacy game.   |
-| Svetlana unfollow [GAMEID] | Stop following a certain WebDiplomacy game.    |
-| Svetlana list              | Show list of followed games.                   |
+| Command                    | Description                                     |
+|----------------------------|-------------------------------------------------|
+| Svetlana hi/help           | Shows this list of commands.                    |
+| Svetlana follow [GAMEID]   | Start following a certain WebDiplomacy game.    |
+| Svetlana unfollow [GAMEID] | Stop following a certain WebDiplomacy game.     |
+| Svetlana alert [HOURS]     | Adds an alert for X hours before a deadline.    |
+| Svetlana silence [HOURS]   | Removes an alert for X hours before a deadline. |
+| Svetlana list              | Show list of followed games.                    |
 
 ## Development
 

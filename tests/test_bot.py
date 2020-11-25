@@ -93,6 +93,36 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     assert args[0] == 'Huh?'
 
 @pytest.mark.asyncio
+async def test_alert_silence(mocker, monkeypatch):
+    send_spy = mocker.spy(MockMessage.channel, 'send')
+
+    client = DiscordClient(None, ':memory:', False)
+
+    await client.on_message(MockMessage('svetlana alert 2'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == 'OK, I will alert 2 hours before a deadline.'
+
+    await client.on_message(MockMessage('svetlana alert 3'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == 'OK, I will alert 3 hours before a deadline.'
+
+    await client.on_message(MockMessage('svetlana alert 2'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == "I'm already alerting 2 hours before a deadline!"
+
+    await client.on_message(MockMessage('svetlana silence 2'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == 'Understood, I will stop alerting T-2h..'
+
+    await client.on_message(MockMessage('svetlana silence 2'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == "I already don't alert 2 hours before a deadline?!"
+
+    await client.on_message(MockMessage('svetlana silence 3'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == 'Understood, I will stop alerting T-3h..'
+
+@pytest.mark.asyncio
 async def test_poll_pregame(mocker, monkeypatch):
     def _test_days(N):
         game = DiplomacyGame(1, {
