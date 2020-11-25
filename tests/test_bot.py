@@ -95,7 +95,7 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_pregame(mocker, monkeypatch):
     def _test_days(N):
-        wd_client = MockWebDiplomacyClient({
+        game = DiplomacyGame(1, {
             'deadline': [str(int(datetime.now().timestamp())+N*DAY+MINUTE)],
             'defeated': [],
             'not_ready': [],
@@ -104,11 +104,11 @@ async def test_poll_pregame(mocker, monkeypatch):
             'drawn': [],
             'pregame': ['foo'],
             'map_link': ['foo.jpg'],
-        })
+        }, '', '')
 
-        client = DiscordClient(wd_client, ':memory:', False)
+        client = DiscordClient(None, ':memory:', False)
 
-        msg = client._poll(None, None)
+        msg = client._poll(game, None)
         assert msg == f'The game starts in {N} days!'
 
     for N in range(7):
@@ -116,7 +116,7 @@ async def test_poll_pregame(mocker, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_poll_two_hours_left_ready(mocker, monkeypatch):
-    wd_client = MockWebDiplomacyClient({
+    game = DiplomacyGame(1, {
         'deadline': [str(int(datetime.now().timestamp())+2*HOUR+MINUTE)],
         'defeated': [],
         'not_ready': [],
@@ -125,16 +125,16 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
         'drawn': [],
         'pregame': [],
         'map_link': ['foo.jpg'],
-    })
+    }, '', '')
 
-    client = DiscordClient(wd_client, ':memory:', False)
+    client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(None, None)
+    msg = client._poll(game, None)
     assert msg == "Two hours left, everybody's ready!"
 
 @pytest.mark.asyncio
 async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
-    wd_client = MockWebDiplomacyClient({
+    game = DiplomacyGame(1, {
         'deadline': [str(int(datetime.now().timestamp())+2*HOUR+MINUTE)],
         'defeated': [],
         'not_ready': ['Turkey', 'France'],
@@ -143,16 +143,16 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
         'drawn': [],
         'pregame': [],
         'map_link': ['foo.jpg'],
-    })
+    }, '', '')
 
-    client = DiscordClient(wd_client, ':memory:', False)
+    client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(None, None)
+    msg = client._poll(game, None)
     assert msg == "Two hours left! These countries aren't ready: Turkey, France"
 
 @pytest.mark.asyncio
 async def test_poll_drawn(mocker, monkeypatch):
-    wd_client = MockWebDiplomacyClient({
+    game = DiplomacyGame(1, {
         'deadline': [str(int(datetime.now().timestamp()))],
         'defeated': [],
         'not_ready': [],
@@ -161,16 +161,16 @@ async def test_poll_drawn(mocker, monkeypatch):
         'drawn': ['France', 'Russia'],
         'pregame': [],
         'map_link': ['foo.jpg'],
-    })
+    }, '', '')
 
-    client = DiscordClient(wd_client, ':memory:', False)
+    client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(None, None)
+    msg = client._poll(game, None)
     assert msg == 'The game was a draw between France, Russia!'
 
 @pytest.mark.asyncio
 async def test_poll_won(mocker, monkeypatch):
-    wd_client = MockWebDiplomacyClient({
+    game = DiplomacyGame(1, {
         'deadline': [str(int(datetime.now().timestamp()))],
         'defeated': [],
         'not_ready': [],
@@ -179,16 +179,16 @@ async def test_poll_won(mocker, monkeypatch):
         'drawn': [],
         'pregame': [],
         'map_link': ['foo.jpg'],
-    })
+    }, '', '')
 
-    client = DiscordClient(wd_client, ':memory:', False)
+    client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(None, None)
+    msg = client._poll(game, None)
     assert msg == 'Russia has won!'
 
 @pytest.mark.asyncio
 async def test_poll_new_round(mocker, monkeypatch):
-    wd_client = MockWebDiplomacyClient({
+    game = DiplomacyGame(1, {
         'deadline': [str(int(datetime.now().timestamp())+DAY)],
         'defeated': [],
         'not_ready': [],
@@ -197,10 +197,10 @@ async def test_poll_new_round(mocker, monkeypatch):
         'drawn': [],
         'pregame': [],
         'map_link': ['foo.jpg'],
-    })
+    }, '', '')
 
-    client = DiscordClient(wd_client, ':memory:', False)
+    client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(None, None)
+    msg = client._poll(game, None)
     assert msg == 'Starting new round! Good luck :)'
 

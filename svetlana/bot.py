@@ -63,29 +63,29 @@ class DiscordClient(discord.Client):
             await asyncio.sleep(60*period)
             for game_id, channel_id in self._pollers:
                 try:
-                    result = self._poll(game_id, channel_id, period)
+                    game = self.wd_client.fetch(game_id)
+                    result = self._poll(game, channel_id, period)
                     if result:
                         channel = self.get_channel(channel_id)
-                        embed = self._get_embed(game_id, result)
+                        embed = self._get_embed(game, result)
 
                         await channel.send(embed=embed)
                 except Exception as exc:
                     # logging.error('Error while polling %d: %s', game_id, exc)
                     logging.exception('Error while polling %d: %s', game_id, exc)
 
-    def _poll(self, game_id, channel_id, period=1):
+    def _poll(self, game, channel_id, period=1):
         """Poll a game. Returns a message, if needed."""
-        game = self.wd_client.fetch(game_id)
         msg = None
         if game.pregame:
             if game.hours_left == 0 and game.minutes_left == 0:
                 msg = f'The game starts in {game.days_left} days!'
         elif game.won:
-            self._unfollow(game_id, channel_id)
+            self._unfollow(game.game_id, channel_id)
             msg = f'{game.won} has won!'
         elif game.drawn:
             countries = ', '.join(game.drawn)
-            self._unfollow(game_id, channel_id)
+            self._unfollow(game.game_id, channel_id)
             msg = f'The game was a draw between {countries}!'
         elif game.hours_left == 2 and game.minutes_left <= period*1.5:
             if game.not_ready:

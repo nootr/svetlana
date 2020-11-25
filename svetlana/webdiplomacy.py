@@ -81,7 +81,7 @@ class WebDiplomacyClient:
             'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
             'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
             'pregame':   r'.*(memberPreGameList)">.*',
-            'map_link':  r'.*<a.*LargeMapLink.*href="(.*)".*',
+            'map_link':  r'.*<a.*LargeMapLink.*href="(.*?)".*',
         }
         data = { k: [] for k in patterns }
 
