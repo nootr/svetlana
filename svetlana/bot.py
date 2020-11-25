@@ -1,3 +1,8 @@
+"""
+This module contains a Discord client which acts as a WebDiplomacy notification
+bot.
+"""
+
 import hashlib
 import logging
 import asyncio

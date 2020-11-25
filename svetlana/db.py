@@ -1,3 +1,8 @@
+"""
+This module contains two sqlite3 tables; one for pollers with info on games and
+discord channels and one for notification alarms.
+"""
+
 import sqlite3
 
 DEFAULT_DB_NAME = 'svetlana.db'

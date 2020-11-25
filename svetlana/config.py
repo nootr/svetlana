@@ -1,3 +1,8 @@
+"""
+This module contains a method to fetch relevant configuration from environment
+variables.
+"""
+
 import os
 import logging
 import sys

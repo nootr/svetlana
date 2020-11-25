@@ -1,3 +1,7 @@
+"""
+This module contains an interface to the WebDiplomacy website.
+"""
+
 import logging
 import time
 import re
