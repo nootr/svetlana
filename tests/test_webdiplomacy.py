@@ -8,6 +8,8 @@ def test_client_won(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo memberCountryName><bar memberStatusWon">Russia</bar>
     <a LargeMapLink href="foo.jpg">
+    <title>mock - webDiplomacy</title>
+    <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -28,6 +30,8 @@ def test_client_draw(mocker, monkeypatch):
     <foo memberCountryName><bar memberStatusDrawn">Russia</bar>
     <foo memberCountryName><bar memberStatusDrawn">France</bar>
     <a LargeMapLink href="foo.jpg">
+    <title>mock - webDiplomacy</title>
+    <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -47,6 +51,8 @@ def test_client_pregame(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo "memberPreGameList">
     <a LargeMapLink href="foo.jpg">
+    <title>mock - webDiplomacy</title>
+    <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -65,6 +71,8 @@ def test_client_ready(mocker, monkeypatch):
     <foo memberCountryName>tick<bar "MemberStatusPlaying">Italy</bar>
     <foo memberCountryName>tick<bar "MemberStatusPlaying">France</bar>
     <a LargeMapLink href="foo.jpg">
+    <title>mock - webDiplomacy</title>
+    <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -85,6 +93,8 @@ def test_client_not_ready(mocker, monkeypatch):
     <foo memberCountryName>alert<bar "MemberStatusPlaying">Italy</bar>
     <foo memberCountryName>alert<bar "MemberStatusPlaying">France</bar>
     <a LargeMapLink href="foo.jpg">
+    <title>mock - webDiplomacy</title>
+    <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -102,6 +112,9 @@ def test_client_not_ready(mocker, monkeypatch):
 
 def test_game_time(mocker, monkeypatch):
     mock_game = DiplomacyGame(1, {
+        'title': ['Mock'],
+        'date': ['Spring, 1901'],
+        'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
         'defeated': [],
         'not_ready': [],
@@ -117,6 +130,9 @@ def test_game_time(mocker, monkeypatch):
     assert mock_game.minutes_left == 59
 
     mock_game = DiplomacyGame(1, {
+        'title': ['Mock'],
+        'date': ['Spring, 1901'],
+        'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp())+3600)],
         'defeated': [],
         'not_ready': [],
@@ -133,6 +149,9 @@ def test_game_time(mocker, monkeypatch):
 
 def test_game_stats(mocker, monkeypatch):
     mock_game = DiplomacyGame(1, {
+        'title': ['Mock'],
+        'date': ['Spring, 1901'],
+        'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
         'defeated': ['Italy'],
         'not_ready': ['Turkey'],
@@ -152,6 +171,9 @@ def test_game_stats(mocker, monkeypatch):
 
 def test_game_pregame(mocker, monkeypatch):
     mock_game = DiplomacyGame(1, {
+        'title': ['Mock'],
+        'date': ['Spring, 1901'],
+        'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
         'defeated': [],
         'not_ready': [],

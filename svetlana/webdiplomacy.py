@@ -3,6 +3,7 @@ import time
 import re
 
 from datetime import datetime
+from collections import defaultdict
 
 import requests
 
@@ -11,6 +12,9 @@ class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
     def __init__(self, game_id, stats, url, game_endpoint):
         self.game_id = game_id
+        self.title = stats['title'][0]
+        self.date = stats['date'][0]
+        self.phase = stats['phase'][0]
         self.deadline = datetime.fromtimestamp(int(stats['deadline'][0])) \
                 if stats['deadline'] else None
         self.defeated = stats['defeated']
@@ -74,6 +78,9 @@ class WebDiplomacyClient:
         outside of this function.
         """
         patterns = {
+            'title':     r'.*<title>(.*?) - webDiplomacy<.*',
+            'date':      r'.*gameDate">(.*?)<.*',
+            'phase':     r'.*gamePhase">(.*?)<.*',
             'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
             'drawn':     r'.*memberCountryName.*memberStatusDrawn">(.*?)<.*',
             'ready':     r'.*memberCountryName.*tick.*rStatusPlaying">(.*?)<.*',
@@ -83,14 +90,13 @@ class WebDiplomacyClient:
             'pregame':   r'.*(memberPreGameList)">.*',
             'map_link':  r'.*<a.*LargeMapLink.*href="(.*?)".*',
         }
-        data = { k: [] for k in patterns }
+        data = defaultdict(list)
 
         for line in content.split('\n'):
             for key, pattern in patterns.items():
                 match = re.match(pattern, line.strip())
                 if match:
-                    current_list = data.get(key, [])
-                    data[key] = current_list + [match.group(1)]
+                    data[key] += [match.group(1)]
 
         logging.debug('Parsed data: %s', data)
 
