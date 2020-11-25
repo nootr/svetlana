@@ -90,7 +90,7 @@ class DiscordClient(discord.Client):
         """
         while True:
             await asyncio.sleep(60*period)
-            for game_id, channel_id in self._pollers:
+            for game_id, channel_id, last_delta in self._pollers:
                 try:
                     game = self.wd_client.fetch(game_id)
                     result = self._poll(game, channel_id, period)
@@ -189,7 +189,7 @@ class DiscordClient(discord.Client):
             else:
                 msg = f"I already don't alert {hours} hours before a deadline?!"
         elif command == 'list':
-            game_ids = [str(g) for g, c in self._pollers \
+            game_ids = [str(g) for g, c, _ in self._pollers \
                     if c == message.channel.id]
             msg = "I'm following: " + ', '.join(game_ids)
         elif _hash(command) == b'\xb9\xa3e\xc4\xd2g]_\xd8\xecwg*+' + \

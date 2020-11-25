@@ -4,25 +4,39 @@ DEFAULT_DB_NAME = 'svetlana.db'
 
 
 class Pollers:
-    """A simple list of Game ID-Discord channel pairs."""
+    """A simple list of Game ID-Discord channel pairs.
+
+    The table columns are as follows (all of them positive integers):
+
+    | Name       | Description                                        |
+    |------------|----------------------------------------------------|
+    | id         | Unique identifier                                  |
+    | game       | WebDiplomacy game identifier                       |
+    | channel    | Discord channel identifier                         |
+    | last_delta | Number of seconds until deadline during last check |
+
+    """
     def __init__(self, dbfile=DEFAULT_DB_NAME):
         self.connection = sqlite3.connect(dbfile)
         self.connection.execute("""CREATE TABLE IF NOT EXISTS pollers (
-            id      INTEGER PRIMARY KEY,
-            game    INTEGER NOT NULL,
-            channel INTEGER NOT NULL
+            id         INTEGER PRIMARY KEY,
+            game       INTEGER NOT NULL,
+            channel    INTEGER NOT NULL,
+            last_delta INTEGER
         );""")
         self.connection.commit()
 
     def __iter__(self):
-        pollers = self.connection.execute('SELECT game, channel FROM pollers;')
-        for game, channel in pollers:
-            yield (int(game), int(channel))
+        pollers = self.connection.execute(
+                'SELECT game, channel, last_delta FROM pollers;')
+        for game, channel, last_delta in pollers:
+            yield (game, channel, last_delta)
 
     def __contains__(self, item):
         game, channel = item
         cursor = self.connection.cursor()
-        cursor.execute('SELECT id FROM pollers WHERE game = ? AND channel = ?',
+        cursor.execute(
+                'SELECT id FROM pollers WHERE game = ? AND channel = ?;',
                 (int(game), int(channel)))
         data = cursor.fetchall()
         return len(data) > 0
@@ -35,17 +49,26 @@ class Pollers:
         game, channel = item
         assert game > 0
         assert channel > 0
-        self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
+        self.connection.execute(
+                'INSERT INTO pollers(game,channel) VALUES(?,?);',
                 (int(game), int(channel)))
         self.connection.commit()
 
     def remove(self, item):
         """Remove a game-channel pair from the list."""
         game, channel = item
-        assert game > 0
-        assert channel > 0
-        self.connection.execute("""DELETE FROM pollers
-                WHERE game=? AND channel=?""", (int(game), int(channel)))
+        self.connection.execute(
+                'DELETE FROM pollers WHERE game = ? AND channel = ?;',
+                (int(game), int(channel)))
+        self.connection.commit()
+
+    def update_delta(self, item, last_delta):
+        """Update the last_delta of a given game-channel pair."""
+        game, channel = item
+        assert last_delta > 0
+        self.connection.execute(
+                'UPDATE pollers SET last_delta=? WHERE game=? AND channel=?;',
+                (int(last_delta), int(game), int(channel)))
         self.connection.commit()
 
 
@@ -68,7 +91,8 @@ class Alarms:
     def __contains__(self, item):
         alarm, channel = item
         cursor = self.connection.cursor()
-        cursor.execute('SELECT id FROM alarms WHERE hours = ? AND channel=?;',
+        cursor.execute(
+                'SELECT id FROM alarms WHERE hours = ? AND channel = ?;',
                 (int(alarm), int(channel)))
         data = cursor.fetchall()
         return len(data) > 0
@@ -91,6 +115,7 @@ class Alarms:
         alarm, channel = item
         assert alarm > 0
         assert channel > 0
-        self.connection.execute("""DELETE FROM alarms
-                WHERE hours=? AND channel=?""", (int(alarm), int(channel)))
+        self.connection.execute(
+                'DELETE FROM alarms WHERE hours = ? AND channel = ?',
+                (int(alarm), int(channel)))
         self.connection.commit()

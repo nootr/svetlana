@@ -12,9 +12,10 @@ def test_pollers_iter_append(mocker, monkeypatch):
 
     for i, obj in enumerate(pollers):
         print(i)
-        x, y = obj
+        x, y, z = obj
         assert x == data[i][0]
         assert y == data[i][1]
+        assert not z
 
     assert (1, 2) in pollers
     assert (1, 3) not in pollers
@@ -31,7 +32,7 @@ def test_pollers_str(mocker, monkeypatch):
     for x, y in data:
         pollers.append((x, y))
 
-    assert str(pollers) == '[(1, 2), (3, 4)]'
+    assert str(pollers) == '[(1, 2, None), (3, 4, None)]'
 
 def test_alarms_iter_append(mocker, monkeypatch):
     alarms = Alarms(':memory:')
