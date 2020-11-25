@@ -33,6 +33,8 @@ class Pollers:
     def append(self, item):
         """Append a game-channel pair to the list."""
         game, channel = item
+        assert game > 0
+        assert channel > 0
         self.connection.execute('INSERT INTO pollers(game,channel) VALUES(?,?)',
                 (int(game), int(channel)))
         self.connection.commit()
@@ -40,6 +42,8 @@ class Pollers:
     def remove(self, item):
         """Remove a game-channel pair from the list."""
         game, channel = item
+        assert game > 0
+        assert channel > 0
         self.connection.execute("""DELETE FROM pollers
                 WHERE game=? AND channel=?""", (int(game), int(channel)))
         self.connection.commit()
@@ -75,6 +79,8 @@ class Alarms:
     def append(self, item):
         """Append an alarm-channel pair to the list."""
         alarm, channel = item
+        assert alarm > 0
+        assert channel > 0
         self.connection.execute(
                 'INSERT INTO alarms(hours, channel) VALUES(?,?);',
                 (int(alarm), int(channel)))
@@ -83,6 +89,8 @@ class Alarms:
     def remove(self, item):
         """Remove an alarm-channel pair from the list."""
         alarm, channel = item
+        assert alarm > 0
+        assert channel > 0
         self.connection.execute("""DELETE FROM alarms
                 WHERE hours=? AND channel=?""", (int(alarm), int(channel)))
         self.connection.commit()

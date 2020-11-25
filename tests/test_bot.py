@@ -96,6 +96,10 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     args, kwargs = send_spy.call_args
     assert args[0] == 'Huh?'
 
+    await client.on_message(MockMessage('svetlana follow -1'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == 'Huh?'
+
 @pytest.mark.asyncio
 async def test_alert_silence(mocker, monkeypatch):
     send_spy = mocker.spy(MockMessage.channel, 'send')
