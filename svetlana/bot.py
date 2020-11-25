@@ -87,14 +87,14 @@ class DiscordClient(discord.Client):
             countries = ', '.join(game.drawn)
             self._unfollow(game_id, channel_id)
             msg = f'The game was a draw between {countries}!'
-        elif game.hours_left == 2 and game.minutes_left < period*1.5:
+        elif game.hours_left == 2 and game.minutes_left <= period*1.5:
             if game.not_ready:
                 countries = ', '.join(game.not_ready)
                 msg = "Two hours left! These countries aren't ready: " + \
                         countries
             else:
                 msg = "Two hours left, everybody's ready!"
-        elif game.hours_left == 23 and game.minutes_left > 60 - (period*1.5):
+        elif game.hours_left == 23 and game.minutes_left >= 60 - (period*1.5):
             msg = 'Starting new round! Good luck :)'
 
         return msg
