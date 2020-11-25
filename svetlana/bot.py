@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import asyncio
 import discord
@@ -116,6 +117,9 @@ class DiscordClient(discord.Client):
 
     def _answer_message(self, message):
         """React to a message."""
+        def _hash(string):
+            return hashlib.sha256(string.encode('utf-8')).digest()
+
         words = message.content.split(' ')
         command = words[1]
         arguments = words[2:]
@@ -125,28 +129,26 @@ class DiscordClient(discord.Client):
         if command in {'hi', 'hello', 'help'}:
             msg = f'Hello, {message.author.name}!\n{DESCRIPTION}'
         elif command == 'follow':
-            if len(arguments) != 1:
-                msg = 'Could you please give me a valid ID?'
+            game_id = int(arguments[0])
+            if self._follow(game_id, message.channel.id):
+                desc = f'Now following {game_id}!'
             else:
-                game_id = int(arguments[0])
-                if self._follow(game_id, message.channel.id):
-                    desc = f'Now following {game_id}!'
-                else:
-                    desc = "I'm already following that game!"
-                msg = self._get_embed(game_id, desc)
+                desc = "I'm already following that game!"
+            msg = self._get_embed(game_id, desc)
         elif command == 'unfollow':
-            if len(arguments) != 1:
-                msg = 'Could you please give me a valid ID?'
+            game_id = int(arguments[0])
+            if self._unfollow(game_id, message.channel.id):
+                msg = 'Consider it done!'
             else:
-                game_id = int(arguments[0])
-                if self._unfollow(game_id, message.channel.id):
-                    msg = 'Consider it done!'
-                else:
-                    msg = 'Huh? What game?'
+                msg = 'Huh? What game?'
         elif command == 'list':
             game_ids = [id for id, channel_id in self._pollers \
                     if channel_id == message.channel.id]
             msg = f"I'm following: {game_ids}"
+        elif _hash(command) == b'\xb9\xa3e\xc4\xd2g]_\xd8\xecwg*+' + \
+                b'\xc2\x94t\x18L8\x05\xb5P\xb9\x87\xb60\xc8< \x0c\x9c':
+            # There are no easter eggs here, just serious features
+            msg = f'pls {command}?'
 
         return msg
 
