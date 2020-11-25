@@ -2,6 +2,7 @@
 
 [![pipeline status](https://gitlab.jhartog.dev/jhartog/svetlana/badges/master/pipeline.svg)](https://gitlab.jhartog.dev/jhartog/svetlana/-/commits/master)
 [![coverage report](https://gitlab.jhartog.dev/jhartog/svetlana/badges/master/coverage.svg)](https://gitlab.jhartog.dev/jhartog/svetlana/-/commits/master)
+[![pylint score](https://gitlab.jhartog.dev/jhartog/svetlana/-/jobs/artifacts/master/raw/pylint/pylint.svg?job=lint)](https://gitlab.jhartog.dev/jhartog/svetlana/-/jobs/artifacts/master/raw/pylint/pylint.log)
 
 A quick-and-dirty Discord bot which notifies about deadlines in WebDiplomacy
 games.

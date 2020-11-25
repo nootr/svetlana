@@ -14,7 +14,14 @@ before_script:
 lint:
   stage: analysis
   script:
-    - pylint svetlana/*.py
+    - mkdir ./pylint
+    - pylint --output-format=text svetlana/*.py | tee ./pylint/pylint.log || pylint-exit $?
+    - PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' ./pylint/pylint.log)
+    - anybadge --label=lint --file=pylint/pylint.svg --value=$PYLINT_SCORE 2=red 4=orange 8=yellow 10=green
+    - echo "Pylint score is $PYLINT_SCORE"
+  artifacts:
+    paths:
+      - ./pylint/
 
 test:
   stage: test
