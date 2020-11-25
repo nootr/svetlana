@@ -61,6 +61,10 @@ class DiplomacyGame:
 
 class WebDiplomacyClient:
     """Acts as an interface to the WebDiplomacy website."""
+    # pylint: disable=too-few-public-methods
+    # NOTE(jhartog): Although this class only has one public method, there are a
+    # number of reasons why it's better as a class; e.g. only having to specify
+    # the url once without sketchy global variables.
     def __init__(self, url='https://webdiplomacy.net/'):
         self.url = url
 
