@@ -172,11 +172,16 @@ class DiscordClient(discord.Client):
             else:
                 msg = 'Huh? What game?'
         elif command == 'alert':
-            hours = int(arguments[0])
-            if self._add_alert(hours, message.channel.id):
-                msg = f'OK, I will alert {hours} hours before a deadline.'
+            if arguments[0] == 'list':
+                alarms = [f'T-{h}h' for h, c in self._alarms \
+                        if c == message.channel.id]
+                msg = "I'm alerting at: " + ', '.join(alarms)
             else:
-                msg = f"I'm already alerting {hours} hours before a deadline!"
+                hours = int(arguments[0])
+                if self._add_alert(hours, message.channel.id):
+                    msg = f'OK, I will alert {hours} hours before a deadline.'
+                else:
+                    msg = f"I'm already alerting {hours} hours before a deadline!"
         elif command == 'silence':
             hours = int(arguments[0])
             if self._remove_alert(hours, message.channel.id):
@@ -184,9 +189,9 @@ class DiscordClient(discord.Client):
             else:
                 msg = f"I already don't alert {hours} hours before a deadline?!"
         elif command == 'list':
-            game_ids = [id for id, channel_id in self._pollers \
-                    if channel_id == message.channel.id]
-            msg = f"I'm following: {game_ids}"
+            game_ids = [str(g) for g, c in self._pollers \
+                    if c == message.channel.id]
+            msg = "I'm following: " + ', '.join(game_ids)
         elif _hash(command) == b'\xb9\xa3e\xc4\xd2g]_\xd8\xecwg*+' + \
                 b'\xc2\x94t\x18L8\x05\xb5P\xb9\x87\xb60\xc8< \x0c\x9c':
             # There are no easter eggs here, just serious features

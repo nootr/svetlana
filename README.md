@@ -24,6 +24,7 @@ Svetlana understands the following commands:
 | Svetlana hi/help           | Shows this list of commands.                    |
 | Svetlana follow [GAMEID]   | Start following a certain WebDiplomacy game.    |
 | Svetlana unfollow [GAMEID] | Stop following a certain WebDiplomacy game.     |
+| Svetlana alert list        | Shows list of alarms.                           |
 | Svetlana alert [HOURS]     | Adds an alert for X hours before a deadline.    |
 | Svetlana silence [HOURS]   | Removes an alert for X hours before a deadline. |
 | Svetlana list              | Show list of followed games.                    |

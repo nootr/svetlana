@@ -64,7 +64,7 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
 
     await client.on_message(MockMessage('svetlana list'))
     args, kwargs = send_spy.call_args
-    assert args[0] == "I'm following: []"
+    assert args[0] == "I'm following: "
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
@@ -76,9 +76,13 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     args, kwargs = send_spy.call_args
     assert kwargs['embed'].description == "I'm already following that game!"
 
+    await client.on_message(MockMessage('svetlana follow 1337'))
+    args, kwargs = send_spy.call_args
+    assert kwargs['embed'].description == 'Now following 1337!'
+
     await client.on_message(MockMessage('svetlana list'))
     args, kwargs = send_spy.call_args
-    assert args[0] == "I'm following: [1234]"
+    assert args[0] == "I'm following: 1234, 1337"
 
     await client.on_message(MockMessage('svetlana unfollow 1234'))
     args, kwargs = send_spy.call_args
@@ -117,6 +121,10 @@ async def test_alert_silence(mocker, monkeypatch):
     await client.on_message(MockMessage('svetlana silence 2'))
     args, kwargs = send_spy.call_args
     assert args[0] == "I already don't alert 2 hours before a deadline?!"
+
+    await client.on_message(MockMessage('svetlana alert list'))
+    args, kwargs = send_spy.call_args
+    assert args[0] == "I'm alerting at: T-3h"
 
     await client.on_message(MockMessage('svetlana silence 3'))
     args, kwargs = send_spy.call_args
