@@ -14,7 +14,7 @@ before_script:
 lint:
   stage: analysis
   script:
-    - pylint --disable=W0703 svetlana/*.py
+    - pylint svetlana/*.py
 
 test:
   stage: test

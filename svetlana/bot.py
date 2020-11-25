@@ -96,17 +96,13 @@ class DiscordClient(discord.Client):
         while True:
             await asyncio.sleep(period)
             for game_id, channel_id, last_delta in self._pollers:
-                try:
-                    game = self.wd_client.fetch(game_id)
-                    result = self._poll(game, channel_id, last_delta)
-                    if result:
-                        channel = self.get_channel(channel_id)
-                        embed = self._get_embed(game, result)
+                game = self.wd_client.fetch(game_id)
+                result = self._poll(game, channel_id, last_delta)
+                if result:
+                    channel = self.get_channel(channel_id)
+                    embed = self._get_embed(game, result)
 
-                        await channel.send(embed=embed)
-                except Exception as exc:
-                    logging.exception('Error while polling %d: %s', game_id,
-                            exc)
+                    await channel.send(embed=embed)
 
     def _poll(self, game, channel_id, last_delta):
         """Poll a game. Returns a message, if needed."""
@@ -222,6 +218,10 @@ class DiscordClient(discord.Client):
         words = message.content.split(' ')
         if words[0].lower() in {'svetlana', 'svet'}:
             try:
+                # pylint: disable=broad-except
+                # NOTE(jhartog): A broad except is justified here as it saves a
+                # huge amount of input validation and sanitization.
+
                 answer = self._answer_message(message)
                 if answer:
                     if isinstance(answer, discord.Embed):

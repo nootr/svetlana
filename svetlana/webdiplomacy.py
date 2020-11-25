@@ -75,12 +75,16 @@ class WebDiplomacyClient:
         timeout reaches a given threshold.
         """
         try:
+            # pylint: disable=bare-except
+            # NOTE(jhartog): A bare except is justified here as it's retrying
+            # the request a finite amount of times. If there is a bug, it will
+            # be raised.
             response = requests.get(url)
             response.raise_for_status()
             return response.text
-        except Exception as exc:
+        except:
             if timeout > threshold:
-                logging.exception('Problem while fetching data: %s', exc)
+                raise
             time.sleep(timeout)
             self._request(url, timeout=timeout*2)
 
