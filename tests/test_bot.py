@@ -30,7 +30,7 @@ class MockMessage:
 
 class MockWebDiplomacyClient:
     def __init__(self, data):
-        self._response = DiplomacyGame(data)
+        self._response = DiplomacyGame(1, data, 'https://foo.bar/', 'game.php')
 
     def fetch(self, _):
         return self._response
@@ -50,7 +50,17 @@ async def test_help(mocker, monkeypatch):
 async def test_follow_unfollow_list(mocker, monkeypatch):
     send_spy = mocker.spy(MockMessage.channel, 'send')
 
-    client = DiscordClient(None, ':memory:', False)
+    wd_client = MockWebDiplomacyClient({
+        'deadline': [str(int(datetime.now().timestamp()))],
+        'defeated': [],
+        'not_ready': [],
+        'ready': [],
+        'won': [],
+        'drawn': [],
+        'pregame': ['foo'],
+        'map_link': ['foo.jpg'],
+    })
+    client = DiscordClient(wd_client, ':memory:', False)
 
     await client.on_message(MockMessage('svetlana list'))
     args, kwargs = send_spy.call_args
@@ -59,6 +69,8 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
     assert kwargs['embed'].description == 'Now following 1234!'
+    assert kwargs['embed'].url == 'https://foo.bar/game.php'
+    assert kwargs['embed'].image.url == 'https://foo.bar/foo.jpg'
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
@@ -91,6 +103,7 @@ async def test_poll_pregame(mocker, monkeypatch):
             'won': [],
             'drawn': [],
             'pregame': ['foo'],
+            'map_link': ['foo.jpg'],
         })
 
         client = DiscordClient(wd_client, ':memory:', False)
@@ -111,6 +124,7 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
         'won': [],
         'drawn': [],
         'pregame': [],
+        'map_link': ['foo.jpg'],
     })
 
     client = DiscordClient(wd_client, ':memory:', False)
@@ -128,6 +142,7 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
         'won': [],
         'drawn': [],
         'pregame': [],
+        'map_link': ['foo.jpg'],
     })
 
     client = DiscordClient(wd_client, ':memory:', False)
@@ -145,6 +160,7 @@ async def test_poll_drawn(mocker, monkeypatch):
         'won': [],
         'drawn': ['France', 'Russia'],
         'pregame': [],
+        'map_link': ['foo.jpg'],
     })
 
     client = DiscordClient(wd_client, ':memory:', False)
@@ -162,6 +178,7 @@ async def test_poll_won(mocker, monkeypatch):
         'won': ['Russia'],
         'drawn': [],
         'pregame': [],
+        'map_link': ['foo.jpg'],
     })
 
     client = DiscordClient(wd_client, ':memory:', False)
@@ -179,6 +196,7 @@ async def test_poll_new_round(mocker, monkeypatch):
         'won': [],
         'drawn': [],
         'pregame': [],
+        'map_link': ['foo.jpg'],
     })
 
     client = DiscordClient(wd_client, ':memory:', False)

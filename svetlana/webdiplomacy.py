@@ -9,7 +9,8 @@ import requests
 
 class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
-    def __init__(self, stats):
+    def __init__(self, game_id, stats, url, game_endpoint):
+        self.game_id = game_id
         self.deadline = datetime.fromtimestamp(int(stats['deadline'][0])) \
                 if stats['deadline'] else None
         self.defeated = stats['defeated']
@@ -18,6 +19,8 @@ class DiplomacyGame:
         self.won = stats['won'][0] if stats['won'] else None
         self.drawn = stats['drawn']
         self.pregame = stats['pregame'] != []
+        self.url = url + game_endpoint
+        self.map_url = url + stats['map_link'][0]
 
     @property
     def _timedelta(self):
@@ -78,6 +81,7 @@ class WebDiplomacyClient:
             'won':       r'.*memberCountryName.*memberStatusWon">(.*?)<.*',
             'deadline':  r'.*gameTimeRemaining.*unixtime="([0-9]+)".*',
             'pregame':   r'.*(memberPreGameList)">.*',
+            'map_link':  r'.*LargeMapLink.*<a href="(.*)".*',
         }
         data = { k: [] for k in patterns }
 
@@ -97,7 +101,8 @@ class WebDiplomacyClient:
         try:
             response = self._request(self.url + endpoint.format(game_id))
             data = self._parse(response)
-            game = DiplomacyGame(data)
+            game = DiplomacyGame(game_id, data, self.url,
+                    endpoint.format(game_id))
             return game
         except Exception as exc:
             logging.error('Problems while fetching data: %s', exc)

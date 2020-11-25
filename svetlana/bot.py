@@ -100,17 +100,13 @@ class DiscordClient(discord.Client):
         return msg
 
     @staticmethod
-    def _get_embed(game_id, msg=''):
-        # NOTE (krist):  Don't use fixed turn number for map image
-        embed_url = f'https://webdiplomacy.net/board.php?gameID={game_id}'
-        embed_img = f'https://webdiplomacy.net/map.php?gameID={game_id}&turn=1337'
-
+    def _get_embed(game, msg=''):
         embed = discord.Embed(
-                title=f'Diplomacy game {game_id}',
+                title=f'Diplomacy game {game.game_id}',
                 description=msg,
-                url=embed_url,
+                url=game.url,
             )
-        embed.set_image(url=embed_img)
+        embed.set_image(url=game.map_url)
 
         return embed
 
@@ -129,11 +125,12 @@ class DiscordClient(discord.Client):
             msg = f'Hello, {message.author.name}!\n{DESCRIPTION}'
         elif command == 'follow':
             game_id = int(arguments[0])
+            game = self.wd_client.fetch(game_id)
             if self._follow(game_id, message.channel.id):
                 desc = f'Now following {game_id}!'
             else:
                 desc = "I'm already following that game!"
-            msg = self._get_embed(game_id, desc)
+            msg = self._get_embed(game, desc)
         elif command == 'unfollow':
             game_id = int(arguments[0])
             if self._unfollow(game_id, message.channel.id):
