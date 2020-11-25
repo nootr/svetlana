@@ -14,6 +14,9 @@ import requests
 
 class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
+    # pylint: disable=too-many-instance-attributes
+    # NOTE(jhartog): Although there are many attributes, they are all justified
+    # and so it's a reasonable amount.
     def __init__(self, game_id, stats, url, game_endpoint):
         self.game_id = game_id
         self.title = stats['title'][0]
