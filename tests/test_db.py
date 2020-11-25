@@ -1,9 +1,9 @@
 import pytest
 
-from svetlana.db import Pollers
+from svetlana.db import Pollers, Alarms
 
 
-def test_iter_append(mocker, monkeypatch):
+def test_pollers_iter_append(mocker, monkeypatch):
     pollers = Pollers(':memory:')
     data = [(1, 2), (3, 4)]
 
@@ -22,7 +22,7 @@ def test_iter_append(mocker, monkeypatch):
     pollers.remove((1, 2))
     assert (1, 2) not in pollers
 
-def test_str(mocker, monkeypatch):
+def test_pollers_str(mocker, monkeypatch):
     pollers = Pollers(':memory:')
     assert str(pollers) == '[]'
 
@@ -32,3 +32,30 @@ def test_str(mocker, monkeypatch):
         pollers.append((x, y))
 
     assert str(pollers) == '[(1, 2), (3, 4)]'
+
+def test_alarms_iter_append(mocker, monkeypatch):
+    alarms = Alarms(':memory:')
+    data = [1, 3, 3, 7]
+
+    for x in data:
+        alarms.append(x)
+
+    for i, x in enumerate(alarms):
+        assert x == data[i]
+
+    assert 1 in alarms
+    assert 2 not in alarms
+
+    alarms.remove(1)
+    assert 1 not in alarms
+
+def test_alarms_str(mocker, monkeypatch):
+    alarms = Alarms(':memory:')
+    assert str(alarms) == '[]'
+
+    data = [1, 3, 5]
+
+    for x in data:
+        alarms.append(x)
+
+    assert str(alarms) == '[1, 3, 5]'
