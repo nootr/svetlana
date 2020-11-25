@@ -82,14 +82,14 @@ class DiscordClient(discord.Client):
         logging.info('Alerting at: %s', self._alarms)
         return True
 
-    async def _start_poll(self, period=1):
+    async def _start_poll(self, period=30):
         """Keep polling a list of games every X minutes.
 
         Note that it first waits, then polls to prevent issues with fetching a
         channel before the client is actually logged in.
         """
         while True:
-            await asyncio.sleep(60*period)
+            await asyncio.sleep(period)
             for game_id, channel_id, last_delta in self._pollers:
                 try:
                     game = self.wd_client.fetch(game_id)
