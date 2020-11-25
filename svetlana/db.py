@@ -62,13 +62,13 @@ class Pollers:
                 (int(game), int(channel)))
         self.connection.commit()
 
-    def update_delta(self, item, last_delta):
-        """Update the last_delta of a given game-channel pair."""
+    def update_delta(self, item, delta):
+        """Update the last delta of a given game-channel pair."""
         game, channel = item
-        assert last_delta > 0
+        assert delta > 0
         self.connection.execute(
                 'UPDATE pollers SET last_delta=? WHERE game=? AND channel=?;',
-                (int(last_delta), int(game), int(channel)))
+                (int(delta), int(game), int(channel)))
         self.connection.commit()
 
 

@@ -46,6 +46,11 @@ class DiplomacyGame:
         """Returns the number of minutes left."""
         return (self._timedelta.seconds//60)%60 if self.deadline else None
 
+    @property
+    def delta(self):
+        """Returns the total number of seconds left."""
+        return self._timedelta.seconds if self.deadline else None
+
 
 class WebDiplomacyClient:
     """Acts as an interface to the WebDiplomacy website."""

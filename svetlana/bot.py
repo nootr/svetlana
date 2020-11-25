@@ -93,7 +93,7 @@ class DiscordClient(discord.Client):
             for game_id, channel_id, last_delta in self._pollers:
                 try:
                     game = self.wd_client.fetch(game_id)
-                    result = self._poll(game, channel_id, period)
+                    result = self._poll(game, channel_id, last_delta)
                     if result:
                         channel = self.get_channel(channel_id)
                         embed = self._get_embed(game, result)
@@ -103,11 +103,11 @@ class DiscordClient(discord.Client):
                     logging.exception('Error while polling %d: %s', game_id,
                             exc)
 
-    def _poll(self, game, channel_id, period=1):
+    def _poll(self, game, channel_id, last_delta):
         """Poll a game. Returns a message, if needed."""
         msg = None
         if game.pregame:
-            if game.hours_left == 0 and game.minutes_left == 0:
+            if game.hours_left % 24 == 0 and game.minutes_left == 0:
                 msg = f'The game starts in {game.days_left} days!'
         elif game.won:
             self._unfollow(game.game_id, channel_id)
@@ -116,14 +116,15 @@ class DiscordClient(discord.Client):
             countries = ', '.join(game.drawn)
             self._unfollow(game.game_id, channel_id)
             msg = f'The game was a draw between {countries}!'
-        elif game.hours_left == 23 and game.minutes_left >= 60 - (period*1.5):
+        elif last_delta and game.delta > last_delta:
             msg = 'Starting new round! Good luck :)'
 
         for hours, ch_id in self._alarms:
             if ch_id != channel_id:
                 continue
 
-            if game.hours_left == hours and game.minutes_left <= period*1.5:
+            if last_delta and game.delta <= hours*3600 and \
+                    last_delta > hours*3600:
                 if game.not_ready:
                     countries = ', '.join(game.not_ready)
                     msg = f"{hours}h left! These countries aren't ready: " + \
@@ -131,6 +132,7 @@ class DiscordClient(discord.Client):
                 else:
                     msg = f"{hours}h left, everybody's ready!"
 
+        self._pollers.update_delta((game.game_id, channel_id), game.delta)
         return msg
 
     @staticmethod
