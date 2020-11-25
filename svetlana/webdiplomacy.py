@@ -64,7 +64,7 @@ class WebDiplomacyClient:
             return response.text
         except Exception as exc:
             if timeout > threshold:
-                logging.error('Problem while fetching data: %s', exc)
+                logging.exception('Problem while fetching data: %s', exc)
             time.sleep(timeout)
             self._request(url, timeout=timeout*2)
 
@@ -111,4 +111,4 @@ class WebDiplomacyClient:
                     endpoint.format(game_id))
             return game
         except Exception as exc:
-            logging.error('Problems while fetching data: %s', exc)
+            logging.exception('Problems while fetching data: %s', exc)

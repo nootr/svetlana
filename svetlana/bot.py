@@ -100,8 +100,8 @@ class DiscordClient(discord.Client):
 
                         await channel.send(embed=embed)
                 except Exception as exc:
-                    # logging.error('Error while polling %d: %s', game_id, exc)
-                    logging.exception('Error while polling %d: %s', game_id, exc)
+                    logging.exception('Error while polling %d: %s', game_id,
+                            exc)
 
     def _poll(self, game, channel_id, period=1):
         """Poll a game. Returns a message, if needed."""
