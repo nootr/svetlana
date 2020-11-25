@@ -3,8 +3,9 @@
 import logging
 import argparse
 
-from svetlana import bot
 from svetlana.config import fetch_config
+from svetlana.webdiplomacy import WebDiplomacyClient
+from svetlana.bot import DiscordClient
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -22,6 +23,8 @@ def run(debug=False):
     config = fetch_config()
     logging.debug('Loaded config: %s', config)
 
+    wd_client = WebDiplomacyClient()
+    bot = DiscordClient(wd_client)
     bot.run(config['DISCORD_TOKEN'])
 
 if __name__ == '__main__':
