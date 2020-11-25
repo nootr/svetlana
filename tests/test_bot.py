@@ -160,7 +160,7 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
     client = DiscordClient(None, ':memory:', False)
     await client.on_message(MockMessage('svetlana alert 2'))
 
-    msg = client._poll(game, None)
+    msg = client._poll(game, 1)
     assert msg == "2h left, everybody's ready!"
 
 @pytest.mark.asyncio
@@ -179,7 +179,7 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
     client = DiscordClient(None, ':memory:', False)
     await client.on_message(MockMessage('svetlana alert 2'))
 
-    msg = client._poll(game, None)
+    msg = client._poll(game, 1)
     assert msg == "2h left! These countries aren't ready: Turkey, France"
 
 @pytest.mark.asyncio

@@ -50,32 +50,39 @@ class Alarms:
     def __init__(self, dbfile=DEFAULT_DB_NAME):
         self.connection = sqlite3.connect(dbfile)
         self.connection.execute("""CREATE TABLE IF NOT EXISTS alarms (
-            id    INTEGER PRIMARY KEY,
-            hours INTEGER NOT NULL
+            id      INTEGER PRIMARY KEY,
+            hours   INTEGER NOT NULL,
+            channel INTEGER NOT NULL
         );""")
         self.connection.commit()
 
     def __iter__(self):
-        alarms = self.connection.execute('SELECT hours FROM alarms;')
-        for hours in alarms:
-            yield int(hours[0])
+        alarms = self.connection.execute('SELECT hours, channel FROM alarms;')
+        for hours, channel in alarms:
+            yield (int(hours), int(channel))
 
-    def __contains__(self, alarm):
+    def __contains__(self, item):
+        alarm, channel = item
         cursor = self.connection.cursor()
-        cursor.execute('SELECT id FROM alarms WHERE hours = ?;', (int(alarm),))
+        cursor.execute('SELECT id FROM alarms WHERE hours = ? AND channel=?;',
+                (int(alarm), int(channel)))
         data = cursor.fetchall()
         return len(data) > 0
 
     def __str__(self):
         return str(list(self))
 
-    def append(self, alarm):
-        """Append an alarm to the list."""
-        self.connection.execute('INSERT INTO alarms(hours) VALUES(?)', (alarm,))
+    def append(self, item):
+        """Append an alarm-channel pair to the list."""
+        alarm, channel = item
+        self.connection.execute(
+                'INSERT INTO alarms(hours, channel) VALUES(?,?);',
+                (int(alarm), int(channel)))
         self.connection.commit()
 
-    def remove(self, alarm):
-        """Remove an alarm from the list."""
-        self.connection.execute('DELETE FROM alarms WHERE hours=?',
-                (int(alarm),))
+    def remove(self, item):
+        """Remove an alarm-channel pair from the list."""
+        alarm, channel = item
+        self.connection.execute("""DELETE FROM alarms
+                WHERE hours=? AND channel=?""", (int(alarm), int(channel)))
         self.connection.commit()

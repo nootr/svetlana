@@ -35,27 +35,29 @@ def test_pollers_str(mocker, monkeypatch):
 
 def test_alarms_iter_append(mocker, monkeypatch):
     alarms = Alarms(':memory:')
-    data = [1, 3, 3, 7]
+    data = [(1, 2), (3, 4)]
 
-    for x in data:
-        alarms.append(x)
+    for x, y in data:
+        alarms.append((x, y))
 
-    for i, x in enumerate(alarms):
-        assert x == data[i]
+    for i, obj in enumerate(alarms):
+        x, y = obj
+        assert x == data[i][0]
+        assert y == data[i][1]
 
-    assert 1 in alarms
-    assert 2 not in alarms
+    assert (1, 2) in alarms
+    assert (1, 3) not in alarms
 
-    alarms.remove(1)
-    assert 1 not in alarms
+    alarms.remove((1, 2))
+    assert (1, 2) not in alarms
 
 def test_alarms_str(mocker, monkeypatch):
     alarms = Alarms(':memory:')
     assert str(alarms) == '[]'
 
-    data = [1, 3, 5]
+    data = [(1, 2), (3, 4)]
 
-    for x in data:
-        alarms.append(x)
+    for x, y in data:
+        alarms.append((x, y))
 
-    assert str(alarms) == '[1, 3, 5]'
+    assert str(alarms) == '[(1, 2), (3, 4)]'

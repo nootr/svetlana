@@ -56,21 +56,29 @@ class DiscordClient(discord.Client):
         logging.info('Following: %s', self._pollers)
         return True
 
-    def _add_alert(self, hours):
+    def _add_alert(self, hours, channel_id):
         """Add an alert for X hours before a deadline."""
-        if hours in self._alarms:
+        if not channel_id:
             return False
 
-        self._alarms.append(hours)
+        obj = (hours, channel_id)
+        if obj in self._alarms:
+            return False
+
+        self._alarms.append(obj)
         logging.info('Alerting at: %s', self._alarms)
         return True
 
-    def _remove_alert(self, hours):
+    def _remove_alert(self, hours, channel_id):
         """Stop alerting X hours before a deadline."""
-        if hours not in self._alarms:
+        if not channel_id:
             return False
 
-        self._alarms.remove(hours)
+        obj = (hours, channel_id)
+        if obj not in self._alarms:
+            return False
+
+        self._alarms.remove(obj)
         logging.info('Alerting at: %s', self._alarms)
         return True
 
@@ -111,7 +119,10 @@ class DiscordClient(discord.Client):
         elif game.hours_left == 23 and game.minutes_left >= 60 - (period*1.5):
             msg = 'Starting new round! Good luck :)'
 
-        for hours in self._alarms:
+        for hours, ch_id in self._alarms:
+            if ch_id != channel_id:
+                continue
+
             if game.hours_left == hours and game.minutes_left <= period*1.5:
                 if game.not_ready:
                     countries = ', '.join(game.not_ready)
@@ -162,13 +173,13 @@ class DiscordClient(discord.Client):
                 msg = 'Huh? What game?'
         elif command == 'alert':
             hours = int(arguments[0])
-            if self._add_alert(hours):
+            if self._add_alert(hours, message.channel.id):
                 msg = f'OK, I will alert {hours} hours before a deadline.'
             else:
                 msg = f"I'm already alerting {hours} hours before a deadline!"
         elif command == 'silence':
             hours = int(arguments[0])
-            if self._remove_alert(hours):
+            if self._remove_alert(hours, message.channel.id):
                 msg = f'Understood, I will stop alerting T-{hours}h..'
             else:
                 msg = f"I already don't alert {hours} hours before a deadline?!"
