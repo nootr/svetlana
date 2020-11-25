@@ -7,7 +7,7 @@ from svetlana.webdiplomacy import DiplomacyGame, WebDiplomacyClient
 def test_client_won(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo memberCountryName><bar memberStatusWon">Russia</bar>
-    <foo LargeMapLink><a href="foo.jpg">
+    <a LargeMapLink href="foo.jpg">
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -27,7 +27,7 @@ def test_client_draw(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo memberCountryName><bar memberStatusDrawn">Russia</bar>
     <foo memberCountryName><bar memberStatusDrawn">France</bar>
-    <foo LargeMapLink><a href="foo.jpg">
+    <a LargeMapLink href="foo.jpg">
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -46,7 +46,7 @@ def test_client_draw(mocker, monkeypatch):
 def test_client_pregame(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo "memberPreGameList">
-    <foo LargeMapLink><a href="foo.jpg">
+    <a LargeMapLink href="foo.jpg">
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -64,7 +64,7 @@ def test_client_ready(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo memberCountryName>tick<bar "MemberStatusPlaying">Italy</bar>
     <foo memberCountryName>tick<bar "MemberStatusPlaying">France</bar>
-    <foo LargeMapLink><a href="foo.jpg">
+    <a LargeMapLink href="foo.jpg">
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
@@ -84,7 +84,7 @@ def test_client_not_ready(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
     <foo memberCountryName>alert<bar "MemberStatusPlaying">Italy</bar>
     <foo memberCountryName>alert<bar "MemberStatusPlaying">France</bar>
-    <foo LargeMapLink><a href="foo.jpg">
+    <a LargeMapLink href="foo.jpg">
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
