@@ -6,8 +6,7 @@ import discord
 from svetlana.db import Pollers
 
 DESCRIPTION = """I respond to the following commands (friends call me 'svet'):
-    * Svetlana hi - I simply respond to let you know I'm alive :)
-    * Svetlana help - Well.. you already know this one, don't you?
+    * Svetlana hi/help - I'll show you this list!
     * Svetlana follow <ID> - I'll keep track of a game with this ID.
     * Svetlana unfollow <N> - I'll stop following this given game.
     * Svetlana list - I'll give you a list of the games I'm following.
@@ -42,7 +41,7 @@ class DiscordClient(discord.Client):
         return True
 
     def _unfollow(self, game_id, channel_id):
-        """Stop following a given game by adding it to a list."""
+        """Stop following a given game by removing it to a list."""
         if not channel_id:
             return False
 

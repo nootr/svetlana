@@ -21,8 +21,7 @@ Svetlana understands the following commands:
 
 | Command                    | Description                                    |
 |----------------------------|------------------------------------------------|
-| Svetlana hi                | Just say hi! Useful to see if she's alive.     |
-| Svetlana help              | Shows this list of commands.                   |
+| Svetlana hi/help           | Shows this list of commands.                   |
 | Svetlana follow [GAMEID]   | Start following a certain WebDiplomacy game.   |
 | Svetlana unfollow [GAMEID] | Stop following a certain WebDiplomacy game.    |
 | Svetlana list              | Show list of followed games.                   |
