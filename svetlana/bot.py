@@ -167,11 +167,14 @@ class DiscordClient(discord.Client):
         elif command == 'follow':
             game_id = int(arguments[0])
             game = self.wd_client.fetch(game_id)
-            if self._follow(game_id, message.channel.id):
-                desc = f'Now following {game_id}!'
+            if not game:
+                msg = 'That game seems to be invalid.'
             else:
-                desc = "I'm already following that game!"
-            msg = self._get_embed(game, desc)
+                if self._follow(game_id, message.channel.id):
+                    desc = f'Now following {game_id}!'
+                else:
+                    desc = "I'm already following that game!"
+                msg = self._get_embed(game, desc)
         elif command == 'unfollow':
             game_id = int(arguments[0])
             if self._unfollow(game_id, message.channel.id):
