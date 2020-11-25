@@ -153,6 +153,11 @@ class DiscordClient(discord.Client):
 
     def _answer_message(self, message):
         """React to a message."""
+        # pylint: disable=too-many-branches
+        # NOTE(jhartog): This method, although ugly, contains the bulk of the
+        # logic, the heart and soul of the bot. Which sophisticated AI doesn't
+        # have too many branches?
+
         def _hash(string):
             return hashlib.sha256(string.encode('utf-8')).digest()
 
