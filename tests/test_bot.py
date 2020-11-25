@@ -74,6 +74,7 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     assert kwargs['embed'].description == 'Now following 1234!'
     assert kwargs['embed'].url == 'https://foo.bar/game.php'
     assert kwargs['embed'].image.url == 'https://foo.bar/foo.jpg'
+    assert kwargs['embed'].title == 'Mock - Spring, 1901 - Diplomacy phase'
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args

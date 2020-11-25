@@ -24,6 +24,9 @@ def test_client_won(mocker, monkeypatch):
     assert game.won == 'Russia'
     assert not game.pregame
     assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.title == 'mock'
+    assert game.phase == 'Diplomacy'
+    assert game.date == 'Spring 1901'
 
 def test_client_draw(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
