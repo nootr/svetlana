@@ -6,7 +6,11 @@ bot.
 import hashlib
 import logging
 import asyncio
+
+from time import sleep
+
 import discord
+
 
 from svetlana.db import Pollers, Alarms
 
@@ -104,7 +108,7 @@ class DiscordClient(discord.Client):
 
                     await channel.send(embed=embed)
 
-    def _poll(self, game, channel_id, last_delta):
+    def _poll(self, game, channel_id, last_delta, map_generate_seconds=10):
         """Poll a game. Returns a message, if needed."""
         msg = None
         if game.pregame:
@@ -118,6 +122,9 @@ class DiscordClient(discord.Client):
             self._unfollow(game.game_id, channel_id)
             msg = f'The game was a draw between {countries}!'
         elif last_delta and game.delta > last_delta:
+            # NOTE(jhartog): We need to give WebDiplomacy some time to generate
+            # a map, otherwise we'll get the map from last turn.
+            sleep(map_generate_seconds)
             msg = 'Starting new round! Good luck :)'
 
         for hours, ch_id in self._alarms:

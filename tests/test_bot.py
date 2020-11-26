@@ -157,7 +157,7 @@ async def test_poll_pregame(mocker, monkeypatch):
 
         client = DiscordClient(None, ':memory:', False)
 
-        msg = client._poll(game, 1, None)
+        msg = client._poll(game, 1, None, 0)
         assert msg == f'The game starts in {N} days!'
 
     for N in range(7):
@@ -182,7 +182,7 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
     client = DiscordClient(None, ':memory:', False)
     await client.on_message(MockMessage('svetlana alert 2'))
 
-    msg = client._poll(game, 1, 3*HOUR)
+    msg = client._poll(game, 1, 3*HOUR, 0)
     assert msg == "2h left, everybody's ready!"
 
 @pytest.mark.asyncio
@@ -204,7 +204,7 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
     client = DiscordClient(None, ':memory:', False)
     await client.on_message(MockMessage('svetlana alert 2'))
 
-    msg = client._poll(game, 1, 3*HOUR)
+    msg = client._poll(game, 1, 3*HOUR, 0)
     assert msg == "2h left! These countries aren't ready: Turkey, France"
 
 @pytest.mark.asyncio
@@ -225,7 +225,7 @@ async def test_poll_drawn(mocker, monkeypatch):
 
     client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(game, 1, None)
+    msg = client._poll(game, 1, None, 0)
     assert msg == 'The game was a draw between France, Russia!'
 
 @pytest.mark.asyncio
@@ -246,7 +246,7 @@ async def test_poll_won(mocker, monkeypatch):
 
     client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(game, 1, None)
+    msg = client._poll(game, 1, None, 0)
     assert msg == 'Russia has won!'
 
 @pytest.mark.asyncio
@@ -267,6 +267,6 @@ async def test_poll_new_round(mocker, monkeypatch):
 
     client = DiscordClient(None, ':memory:', False)
 
-    msg = client._poll(game, 1, 10)
+    msg = client._poll(game, 1, 10, 0)
     assert msg == 'Starting new round! Good luck :)'
 
