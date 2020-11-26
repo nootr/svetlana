@@ -192,7 +192,8 @@ class DiscordClient(discord.Client):
                 if self._add_alert(hours, message.channel.id):
                     msg = f'OK, I will alert {hours} hours before a deadline.'
                 else:
-                    msg = f"I'm already alerting {hours} hours before a deadline!"
+                    msg = \
+                        f"I'm already alerting {hours} hours before a deadline!"
         elif command == 'silence':
             hours = int(arguments[0])
             if self._remove_alert(hours, message.channel.id):
