@@ -232,11 +232,12 @@ class DiscordClient(discord.Client):
         if words[0].lower() in {'svetlana', 'svet'}:
             try:
                 answer = self._answer_message(message)
-                if answer:
-                    if isinstance(answer, discord.Embed):
-                        await message.channel.send(embed=answer)
-                    else:
-                        await message.channel.send(answer)
+                if not answer:
+                    raise ValueError(f'Unknown command: {message.content}')
+                if isinstance(answer, discord.Embed):
+                    await message.channel.send(embed=answer)
+                else:
+                    await message.channel.send(answer)
             except InvalidGameError:
                 await message.channel.send('That game seems to be invalid!')
             except Exception as exc: # pylint: disable=broad-except
