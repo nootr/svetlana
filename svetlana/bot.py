@@ -11,8 +11,9 @@ from time import sleep
 
 import discord
 
-
 from svetlana.db import Pollers, Alarms
+from svetlana.webdiplomacy import InvalidGameError
+
 
 DESCRIPTION = """I respond to the following commands (friends call me 'svet'):
     * Svetlana hi/help - I'll show you this list!
@@ -100,13 +101,20 @@ class DiscordClient(discord.Client):
         while True:
             await asyncio.sleep(period)
             for game_id, channel_id, last_delta in self._pollers:
-                game = self.wd_client.fetch(game_id)
-                result = self._poll(game, channel_id, last_delta)
-                if result:
-                    channel = self.get_channel(channel_id)
-                    embed = self._get_embed(game, result)
+                try:
+                    game = self.wd_client.fetch(game_id)
+                    result = self._poll(game, channel_id, last_delta)
+                    if result:
+                        channel = self.get_channel(channel_id)
+                        embed = self._get_embed(game, result)
 
-                    await channel.send(embed=embed)
+                        await channel.send(embed=embed)
+                except InvalidGameError:
+                    self._unfollow(game_id, channel_id)
+                    channel = self.get_channel(channel_id)
+                    await channel.send(
+                            'The game seems to be cancelled! Unfollowing..')
+
 
     def _poll(self, game, channel_id, last_delta, map_generate_seconds=10):
         """Poll a game. Returns a message, if needed."""
@@ -175,14 +183,11 @@ class DiscordClient(discord.Client):
         elif command == 'follow':
             game_id = int(arguments[0])
             game = self.wd_client.fetch(game_id)
-            if not game:
-                msg = 'That game seems to be invalid.'
+            if self._follow(game_id, message.channel.id):
+                desc = f'Now following {game_id}!'
             else:
-                if self._follow(game_id, message.channel.id):
-                    desc = f'Now following {game_id}!'
-                else:
-                    desc = "I'm already following that game!"
-                msg = self._get_embed(game, desc)
+                desc = "I'm already following that game!"
+            msg = self._get_embed(game, desc)
         elif command == 'unfollow':
             game_id = int(arguments[0])
             if self._unfollow(game_id, message.channel.id):
@@ -226,16 +231,18 @@ class DiscordClient(discord.Client):
         words = message.content.split(' ')
         if words[0].lower() in {'svetlana', 'svet'}:
             try:
-                # pylint: disable=broad-except
-                # NOTE(jhartog): A broad except is justified here as it saves a
-                # huge amount of input validation and sanitization.
-
                 answer = self._answer_message(message)
                 if answer:
                     if isinstance(answer, discord.Embed):
                         await message.channel.send(embed=answer)
                     else:
                         await message.channel.send(answer)
-            except Exception as exc:
+            except InvalidGameError:
+                await message.channel.send('That game seems to be invalid!')
+            except Exception as exc: # pylint: disable=broad-except
+                # NOTE(jhartog): A broad except is justified here as it saves a
+                # huge amount of input validation and sanitization while not
+                # being dangerous. The bot needs to let the user know it
+                # couldn't parse the message.
                 logging.warning(exc)
                 await message.channel.send('Huh?')

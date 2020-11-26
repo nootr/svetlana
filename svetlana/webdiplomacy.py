@@ -12,6 +12,12 @@ from collections import defaultdict
 import requests
 
 
+class InvalidGameError(Exception):
+    """Custom exception which represents the encounter of an invalid game.
+
+    This is probably triggered by an invalid game ID or by a cancelled game.
+    """
+
 class DiplomacyGame:
     """Contains information about a WebDiplomacy game."""
     # pylint: disable=too-many-instance-attributes
@@ -130,7 +136,7 @@ class WebDiplomacyClient:
             game = DiplomacyGame(game_id, data, self.url,
                     endpoint.format(game_id))
             return game
-        except (IndexError, KeyError):
+        except (IndexError, KeyError) as exc:
             # NOTE(jhartog): This is a parsing error, which most probably means
-            # the game is invalid.
-            return None
+            # the game ID is invalid or the game has been cancelled.
+            raise InvalidGameError from exc

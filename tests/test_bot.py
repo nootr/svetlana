@@ -269,4 +269,3 @@ async def test_poll_new_round(mocker, monkeypatch):
 
     msg = client._poll(game, 1, 10, 0)
     assert msg == 'Starting new round! Good luck :)'
-
