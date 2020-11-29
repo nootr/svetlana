@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+import time
 
 from svetlana.webdiplomacy import DiplomacyGame, WebDiplomacyClient
 
@@ -12,6 +13,7 @@ def test_client_won(mocker, monkeypatch):
     <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
 
     client = WebDiplomacyClient()
@@ -23,7 +25,7 @@ def test_client_won(mocker, monkeypatch):
     assert game.game_id == 1234
     assert game.won == 'Russia'
     assert not game.pregame
-    assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.map_url == 'https://webdiplomacy.net/foo.jpg&time=12345'
     assert game.name == 'mock'
     assert game.phase == 'Diplomacy'
     assert game.date == 'Spring 1901'
@@ -37,6 +39,7 @@ def test_client_draw(mocker, monkeypatch):
     <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
 
     client = WebDiplomacyClient()
@@ -48,7 +51,7 @@ def test_client_draw(mocker, monkeypatch):
     assert 'Russia' in game.drawn
     assert 'France' in game.drawn
     assert not game.pregame
-    assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.map_url == 'https://webdiplomacy.net/foo.jpg&time=12345'
 
 def test_client_pregame(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
@@ -58,6 +61,7 @@ def test_client_pregame(mocker, monkeypatch):
     <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
 
     client = WebDiplomacyClient()
@@ -67,7 +71,7 @@ def test_client_pregame(mocker, monkeypatch):
     args, kwargs = request_spy.call_args
     assert args[1] == 'https://webdiplomacy.net/board.php?gameID=1234'
     assert game.pregame
-    assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.map_url == 'https://webdiplomacy.net/foo.jpg&time=12345'
 
 def test_client_ready(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
@@ -78,6 +82,7 @@ def test_client_ready(mocker, monkeypatch):
     <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
 
     client = WebDiplomacyClient()
@@ -89,7 +94,7 @@ def test_client_ready(mocker, monkeypatch):
     assert not game.pregame
     assert 'Italy' in game.ready
     assert 'France' in game.ready
-    assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.map_url == 'https://webdiplomacy.net/foo.jpg&time=12345'
 
 def test_client_not_ready(mocker, monkeypatch):
     response = """<foo gameTimeRemaining unixtime="1337">
@@ -100,6 +105,7 @@ def test_client_not_ready(mocker, monkeypatch):
     <"gameDate">Spring 1901</gameDate><"gamePhase">Diplomacy</gamePhase>
     """
     monkeypatch.setattr(WebDiplomacyClient, '_request', lambda *args: response)
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
     request_spy = mocker.spy(WebDiplomacyClient, '_request')
 
     client = WebDiplomacyClient()
@@ -111,7 +117,7 @@ def test_client_not_ready(mocker, monkeypatch):
     assert not game.pregame
     assert 'Italy' in game.not_ready
     assert 'France' in game.not_ready
-    assert game.map_url == 'https://webdiplomacy.net/foo.jpg'
+    assert game.map_url == 'https://webdiplomacy.net/foo.jpg&time=12345'
 
 def test_game_time(mocker, monkeypatch):
     mock_game = DiplomacyGame(1, {

@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import time
 
 from datetime import datetime
 
@@ -49,6 +50,7 @@ async def test_help(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_follow_unfollow_list(mocker, monkeypatch):
     send_spy = mocker.spy(MockMessage.channel, 'send')
+    monkeypatch.setattr(time, 'time', lambda *args: 12345)
 
     wd_client = MockWebDiplomacyClient({
         'name': ['Mock'],
@@ -73,11 +75,11 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     args, kwargs = send_spy.call_args
     assert kwargs['embed'].description == 'Now following 1234!'
     assert kwargs['embed'].url == 'https://foo.bar/game.php'
-    assert kwargs['embed'].image.url == 'https://foo.bar/foo.jpg'
     assert kwargs['embed'].title == 'Mock - Spring, 1901 - Diplomacy phase'
 
     await client.on_message(MockMessage('svetlana follow 1234'))
     args, kwargs = send_spy.call_args
+    assert kwargs['embed'].image.url == 'https://foo.bar/foo.jpg&time=12345'
     assert kwargs['embed'].description == "I'm already following that game!"
 
     await client.on_message(MockMessage('svetlana follow 1337'))

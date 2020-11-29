@@ -37,7 +37,12 @@ class DiplomacyGame:
         self.drawn = stats['drawn']
         self.pregame = stats['pregame'] != []
         self.url = url + game_endpoint
-        self.map_url = url + stats['map_link'][0]
+        # NOTE(krist): Discord caches embed images. After a retreat phase,
+        # the turn number does not increase - so the image url stays the same.
+        # This causes Discord to keep using a cached, but outdated map image.
+        # Add a parameter time to the map url, which does not do anything other
+        # than to prevent Discord from invalidly caching the map image.
+        self.map_url = f'{url}{stats["map_link"][0]}&time={str(int(time.time()))}'
 
     @property
     def _timedelta(self):
