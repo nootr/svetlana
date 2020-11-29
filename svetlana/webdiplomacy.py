@@ -25,7 +25,7 @@ class DiplomacyGame:
     # and so it's a reasonable amount.
     def __init__(self, game_id, stats, url, game_endpoint):
         self.game_id = game_id
-        self.title = stats['title'][0]
+        self.name = stats['name'][0]
         self.date = stats['date'][0]
         self.phase = stats['phase'][0]
         self.deadline = datetime.fromtimestamp(int(stats['deadline'][0])) \
@@ -104,7 +104,7 @@ class WebDiplomacyClient:
         outside of this function.
         """
         patterns = {
-            'title':     r'.*<title>(.*?) - webDiplomacy<.*',
+            'name':      r'.*gameName">(.*?)<.*',
             'date':      r'.*gameDate">(.*?)<.*',
             'phase':     r'.*gamePhase">(.*?)<.*',
             'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',

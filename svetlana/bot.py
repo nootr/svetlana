@@ -154,7 +154,7 @@ class DiscordClient(discord.Client):
     @staticmethod
     def _get_embed(game, msg=''):
         embed = discord.Embed(
-                title=f'{game.title} - {game.date} - {game.phase} phase',
+                title=f'{game.name} - {game.date} - {game.phase} phase',
                 description=msg,
                 url=game.url,
             )

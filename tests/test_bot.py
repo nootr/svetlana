@@ -51,7 +51,7 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     send_spy = mocker.spy(MockMessage.channel, 'send')
 
     wd_client = MockWebDiplomacyClient({
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
@@ -142,7 +142,7 @@ async def test_alert_silence(mocker, monkeypatch):
 async def test_poll_pregame(mocker, monkeypatch):
     def _test_days(N):
         game = DiplomacyGame(1, {
-            'title': ['Mock'],
+            'name': ['Mock'],
             'date': ['Spring, 1901'],
             'phase': ['Diplomacy'],
             'deadline': [str(int(datetime.now().timestamp())+N*DAY+MINUTE)],
@@ -166,7 +166,7 @@ async def test_poll_pregame(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_two_hours_left_ready(mocker, monkeypatch):
     game = DiplomacyGame(1, {
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp())+HOUR)],
@@ -188,7 +188,7 @@ async def test_poll_two_hours_left_ready(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
     game = DiplomacyGame(1, {
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp())+HOUR)],
@@ -210,7 +210,7 @@ async def test_poll_two_hours_left_not_ready(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_drawn(mocker, monkeypatch):
     game = DiplomacyGame(1, {
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
@@ -231,7 +231,7 @@ async def test_poll_drawn(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_won(mocker, monkeypatch):
     game = DiplomacyGame(1, {
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp()))],
@@ -252,7 +252,7 @@ async def test_poll_won(mocker, monkeypatch):
 @pytest.mark.asyncio
 async def test_poll_new_round(mocker, monkeypatch):
     game = DiplomacyGame(1, {
-        'title': ['Mock'],
+        'name': ['Mock'],
         'date': ['Spring, 1901'],
         'phase': ['Diplomacy'],
         'deadline': [str(int(datetime.now().timestamp())+DAY)],
