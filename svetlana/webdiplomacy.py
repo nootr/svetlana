@@ -25,7 +25,7 @@ class DiplomacyGame:
     # and so it's a reasonable amount.
     def __init__(self, game_id, stats, url, game_endpoint):
         self.game_id = game_id
-        self.title = stats['title'][0]
+        self.name = stats['name'][0]
         self.date = stats['date'][0]
         self.phase = stats['phase'][0]
         self.deadline = datetime.fromtimestamp(int(stats['deadline'][0])) \
@@ -37,7 +37,12 @@ class DiplomacyGame:
         self.drawn = stats['drawn']
         self.pregame = stats['pregame'] != []
         self.url = url + game_endpoint
-        self.map_url = url + stats['map_link'][0]
+        # NOTE(krist): Discord caches embed images. After a retreat phase,
+        # the turn number does not increase - so the image url stays the same.
+        # This causes Discord to keep using a cached, but outdated map image.
+        # Add a parameter time to the map url, which does not do anything other
+        # than to prevent Discord from invalidly caching the map image.
+        self.map_url = f'{url}{stats["map_link"][0]}&time={str(int(time.time()))}'
 
     @property
     def _timedelta(self):
@@ -104,7 +109,7 @@ class WebDiplomacyClient:
         outside of this function.
         """
         patterns = {
-            'title':     r'.*<title>(.*?) - webDiplomacy<.*',
+            'name':      r'.*gameName">(.*?)<.*',
             'date':      r'.*gameDate">(.*?)<.*',
             'phase':     r'.*gamePhase">(.*?)<.*',
             'defeated':  r'.*memberCountryName.*memberStatusDefeated">(.*?)<.*',
