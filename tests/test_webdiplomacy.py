@@ -2,7 +2,8 @@ import pytest
 from datetime import datetime
 import time
 
-from svetlana.webdiplomacy import DiplomacyGame, WebDiplomacyClient
+from svetlana.webdiplomacy import DiplomacyGame, WebDiplomacyClient, \
+                                  InvalidGameError
 
 
 def test_client_won(mocker, monkeypatch):
@@ -194,3 +195,19 @@ def test_game_pregame(mocker, monkeypatch):
     }, '', '')
 
     assert mock_game.pregame
+
+def test_game_negative_id(mocker, monkeypatch):
+    with pytest.raises(InvalidGameError):
+        mock_game = DiplomacyGame(-1, {
+            'name': ['Mock'],
+            'date': ['Spring, 1901'],
+            'phase': ['Diplomacy'],
+            'deadline': [str(int(datetime.now().timestamp()))],
+            'defeated': [],
+            'not_ready': [],
+            'ready': [],
+            'won': [],
+            'drawn': [],
+            'pregame': ['foo'],
+            'map_link': [''],
+        }, '', '')

@@ -5,7 +5,7 @@ import argparse
 
 from svetlana.config import fetch_config
 from svetlana.webdiplomacy import WebDiplomacyClient
-from svetlana.bot import DiscordClient
+from svetlana.bot.client import DiscordClient
 
 def parse_args():
     parser = argparse.ArgumentParser(

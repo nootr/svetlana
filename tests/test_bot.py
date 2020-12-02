@@ -4,7 +4,8 @@ import time
 
 from datetime import datetime
 
-from svetlana.bot import DiscordClient, DESCRIPTION
+from svetlana.bot.actions import DESCRIPTION
+from svetlana.bot.client import DiscordClient
 from svetlana.webdiplomacy import DiplomacyGame
 
 MINUTE = 60
@@ -99,10 +100,6 @@ async def test_follow_unfollow_list(mocker, monkeypatch):
     assert args[0] == 'Huh? What game?'
 
     await client.on_message(MockMessage('svetlana follow 1234a'))
-    args, kwargs = send_spy.call_args
-    assert args[0] == 'Huh?'
-
-    await client.on_message(MockMessage('svetlana follow -1'))
     args, kwargs = send_spy.call_args
     assert args[0] == 'Huh?'
 

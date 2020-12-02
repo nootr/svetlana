@@ -24,6 +24,9 @@ class DiplomacyGame:
     # NOTE(jhartog): Although there are many attributes, they are all justified
     # and so it's a reasonable amount.
     def __init__(self, game_id, stats, url, game_endpoint):
+        if game_id < 0:
+            raise InvalidGameError
+
         self.game_id = game_id
         self.name = stats['name'][0]
         self.date = stats['date'][0]
