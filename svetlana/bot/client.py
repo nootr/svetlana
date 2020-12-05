@@ -10,8 +10,7 @@ from time import sleep
 
 import discord
 
-from svetlana.bot.actions import respond_hi, respond_follow, respond_unfollow, \
-        respond_alert, respond_silence, respond_list
+from svetlana.bot import actions
 from svetlana.db import Pollers, Alarms
 from svetlana.webdiplomacy import InvalidGameError
 
@@ -156,18 +155,13 @@ class DiscordClient(discord.Client):
         arguments = words[2:]
         logging.debug('Received command: %s', command)
 
-        response_generators = {
-            'hi':       respond_hi,
-            'help':     respond_hi,
-            'follow':   respond_follow,
-            'unfollow': respond_unfollow,
-            'alert':    respond_alert,
-            'silence':  respond_silence,
-            'list':     respond_list,
-        }
+        overrides = {
+                'help': 'hi',
+            }
+        command = overrides.get(command, command)
 
         try:
-            resp_gen = response_generators.get(command, lambda *args: 'Huh?')
+            resp_gen = getattr(actions, f'respond_{command}')
             response = resp_gen(
                 bot=self,
                 message=message,
@@ -175,7 +169,7 @@ class DiscordClient(discord.Client):
                 arguments=arguments
             )
             return response
-        except ValueError:
+        except (ValueError, IndexError, AttributeError):
             return 'Huh?'
 
     async def on_message(self, message):
