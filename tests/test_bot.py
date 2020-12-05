@@ -16,8 +16,7 @@ DAY = 24*HOUR
 class MockChannel:
     id = 1
 
-    @asyncio.coroutine
-    def send(self, *args, **kwargs):
+    async def send(self, *args, **kwargs):
         return None
 
 class MockAuthor:
